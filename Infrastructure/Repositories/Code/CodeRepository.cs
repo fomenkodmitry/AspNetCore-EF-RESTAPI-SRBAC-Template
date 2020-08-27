@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Domain.Code;
+using Domain.Filter;
 using Infrastructure.AppSettings;
 using Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Code
 {
-    public class CodeRepository : BaseRepository<CodeModel>
+    public class CodeRepository : BaseRepository<CodeModel, BaseFilterDto>
     {
 
         public async Task<CodeModel> GetByPhone(string phone, string code, CodeReason codeReason)

@@ -21,5 +21,7 @@
         UserEmailNotExists = 13,
         
         ServerError = 14,
+        
+        WrongOperation = 15
     }
 }

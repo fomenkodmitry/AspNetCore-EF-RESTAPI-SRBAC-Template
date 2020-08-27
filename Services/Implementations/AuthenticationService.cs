@@ -40,6 +40,7 @@ namespace Services.Implementations
             _tokenRepository = tokenRepository;
             _secretKey = configuration["AppSettings:Secret"];
         }
+        
         /// <summary>
         /// User registration
         /// </summary>
@@ -142,6 +143,8 @@ namespace Services.Implementations
         public async Task<ResultContainer<bool>> Logout(Guid sessionId)
         {
             var token = await _tokenRepository.GetById(sessionId);
+            if(token == null)
+                return new ResultContainer<bool>(true);
             await _tokenRepository.Delete(token);
             return new ResultContainer<bool>(true);
         }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Domain.Filter
+﻿﻿namespace Domain.Filter
 {
     /// <summary>
     /// Базовый контейнер фильтра для всех методов фильтрации

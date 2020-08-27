@@ -4,15 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Domain.Base;
 using Domain.Filter;
-using Domain.Srbac;
-using Domain.User;
 using Infrastructure.AppSettings;
 using Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
-    public abstract class BaseRepository<TModel> where TModel : BaseModel
+    public abstract class BaseRepository<TModel, TFilter> 
+        where TModel : BaseModel
+        where TFilter : BaseFilterDto
     {
         protected readonly Context Context;
         private readonly AppSettingsConfiguration _appSettingsConfiguration;
@@ -25,7 +25,7 @@ namespace Infrastructure.Repositories
 
         public virtual async Task<TModel> GetById(Guid guid)
         {
-            var data = Context.Set<TModel>().FirstOrDefaultAsync(u => u.Id == guid);
+            var data = Context.Set<TModel>().FirstOrDefaultAsync(u => u.Id == guid && u.IsDelete == false);
             return await data;
         }
 
@@ -55,21 +55,24 @@ namespace Infrastructure.Repositories
 
         protected virtual IQueryable<TModel> ApplyPaging(IQueryable<TModel> source, FilterPagingDto paging)
         {
-            paging ??= new FilterPagingDto {PageSize = _appSettingsConfiguration.DefaultPageSize};
+            paging ??= new FilterPagingDto { PageSize = _appSettingsConfiguration.DefaultPageSize };
             return source
                 .Skip(paging.PageNumber * paging.PageSize)
                 .Take(paging.PageSize);
         }
         
+        protected virtual IQueryable<TModel> GetDataSet() 
+            => Context.Set<TModel>()
+                .AsQueryable();
+
         /// <summary>
         /// Get filtered entities
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        public virtual IEnumerable<TModel> GetFiltered(BaseFilterDto filter)
+        public virtual IEnumerable<TModel> GetFiltered(TFilter filter)
         {
-            var result =  Context.Set<TModel>()
-                .AsQueryable();
+            var result =  GetDataSet();
             
             result = ApplyFilter(result, filter);
             
@@ -111,16 +114,18 @@ namespace Infrastructure.Repositories
             return source;
         }
 
-        protected virtual IQueryable<TModel> ApplyFilter(IQueryable<TModel> result, BaseFilterDto filter)
+        protected virtual IQueryable<TModel> ApplyFilter(IQueryable<TModel> result, TFilter filter)
         {
             if (filter.IsActive.HasValue)
                 result = result.Where(p => p.IsActive == filter.IsActive);
 
+            result = result.Where(p => p.IsDelete == false);
+            
             return result;
         }
 
 
-        public virtual async Task<int> GetCount(BaseFilterDto filter)
+        public virtual async Task<int> GetCount(TFilter filter)
         {
             var result = Context.Set<TModel>().AsQueryable();
 

@@ -1,41 +1,46 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutoMapper;
 using Domain.Base;
 using Domain.Error;
+using Domain.Filter;
 using Domain.User;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Domain.Filter;
 
-namespace Api.Controllers
+namespace Api.Controllers.Base
 {
     /// <summary>
     /// Base Api class
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class BaseApiController<T> : BaseController where T : BaseModel
+    /// <typeparam name="TFilter"></typeparam>
+    public abstract class BaseApiController<T, TFilter> : BaseController 
+        where T : BaseModel
+        where TFilter : BaseFilterDto
+        
     {
         /// <summary>
         /// DI ctor
         /// </summary>
         /// <param name="userService"></param>
         /// <param name="mapper"></param>
-        public BaseApiController(IUserService userService, IMapper mapper) : base (userService)
+        protected BaseApiController(IUserService userService, IMapper mapper) : base (userService)
         {
             Mapper = mapper;
         }
 
-        protected IMapper Mapper { get; }
+        private IMapper Mapper { get; }
 
         /// <summary>
         /// Return all entities
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public abstract Task<ActionResult<IEnumerable<T>>> Get();
+        public virtual async Task<ActionResult<IEnumerable<T>>> Get(TFilter filter)
+            => BadRequest(ErrorCodes.WrongOperation);
 
         /// <summary>
         /// Return entity by id
@@ -43,7 +48,9 @@ namespace Api.Controllers
         /// <param name="id">Id entity</param>
         /// <returns>Model entity</returns>
         [HttpGet("{id}")]
-        public abstract Task<ActionResult<T>> Get(Guid id);
+        public virtual async Task<ActionResult<T>> Get(Guid id)
+            => BadRequest(ErrorCodes.WrongOperation);
+
 
         /// <summary>
         /// Create entity
@@ -51,7 +58,8 @@ namespace Api.Controllers
         /// <param name="model">Description new entity</param>
         /// <returns>Model created entity</returns>
         [HttpPost]
-        public abstract Task<ActionResult<T>> Post([FromBody] T model);
+        public virtual async Task<ActionResult<T>> Post([FromBody] T model)
+            => BadRequest(ErrorCodes.WrongOperation);
 
         /// <summary>
         /// Edit entity
@@ -59,7 +67,8 @@ namespace Api.Controllers
         /// <param name="model">Model with edit fields</param>
         /// <returns>Model edited entity</returns>
         [HttpPut]
-        public abstract Task<ActionResult<T>> Put([FromBody] T model);
+        public virtual async Task<ActionResult<T>> Put([FromBody] T model)
+            => BadRequest(ErrorCodes.WrongOperation);
 
         /// <summary>
         /// Delete entity by Id
@@ -67,7 +76,8 @@ namespace Api.Controllers
         /// <param name="id">Id entity</param>
         /// <returns>Model deleted entity</returns>
         [HttpDelete("{id}")]
-        public abstract Task<ActionResult<T>> Delete(Guid id);
+        public virtual async Task<ActionResult<T>> Delete(Guid id)
+            => BadRequest(ErrorCodes.WrongOperation);
 
         #region Response
 
@@ -77,7 +87,7 @@ namespace Api.Controllers
         /// <param name="code">Error code</param>
         /// <param name="property">Field(optional)</param>
         /// <returns>BadRequest, text error</returns>
-        protected BadRequestGenericResult<T> BadRequest(ErrorCodes code, params string[] property)
+        private static BadRequestGenericResult<T> BadRequest(ErrorCodes code, params string[] property)
             => new BadRequestGenericResult<T>(new ErrorContainer(code, string.Join(",", property)));
 
         /// <summary>
@@ -165,7 +175,7 @@ namespace Api.Controllers
                 new FilterSortDto
                 {
                     ColumnName = Request.Query["sortColumn"].ToString(),
-                    IsDescending = bool.TryParse(Request.Query["descending"].ToString(), out var descending) && @descending
+                    IsDescending = bool.TryParse(Request.Query["descending"].ToString(), out var descending) && descending
                 } : null;
         }
     }

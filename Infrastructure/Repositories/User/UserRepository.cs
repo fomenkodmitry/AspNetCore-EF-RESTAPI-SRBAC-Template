@@ -1,15 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Domain.Filter;
 using Domain.User;
 using Infrastructure.AppSettings;
 using Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories.User
 {
-    public class UserRepository : BaseRepository<UserModel>
+    public class UserRepository : BaseRepository<UserModel, BaseFilterDto>
     {
         public UserRepository(Context context, AppSettingsConfiguration appSettingsConfiguration) : base(context, appSettingsConfiguration)
         {

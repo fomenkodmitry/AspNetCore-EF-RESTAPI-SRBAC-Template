@@ -45,6 +45,7 @@ using Services.Implementations;
 using System;
 using System.IO;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Api
 {
@@ -236,8 +237,10 @@ namespace Api
                         }
                     });
             });
-
-            services.AddControllers();
+            services
+                .AddControllers()
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

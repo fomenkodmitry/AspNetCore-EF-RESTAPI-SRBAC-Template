@@ -29,6 +29,17 @@ namespace Domain.Base
         }
 
         /// <summary>
+        /// Конструктор для выполнения с ошибкой
+        /// </summary>
+        /// <param name="errorCode"></param>
+        /// <param name="permission"></param>
+        public ResultContainer(ErrorCodes errorCode, Srbac.SrbacPermissions permission)
+        {
+            Error = errorCode;
+            ErrorField = permission.ToString();
+        }
+
+        /// <summary>
         /// Код ошибки
         /// </summary>
         public ErrorCodes? Error { get; set; }
