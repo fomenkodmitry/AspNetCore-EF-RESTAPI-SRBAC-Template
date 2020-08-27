@@ -39,9 +39,9 @@ namespace Api.Controllers.Base
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public virtual async Task<ActionResult<IEnumerable<T>>> Get(TFilter filter)
+        public virtual async Task<ActionResult<FilteredItemsDto<T>>> Get(TFilter filter)
             => BadRequest(ErrorCodes.WrongOperation);
-
+        
         /// <summary>
         /// Return entity by id
         /// </summary>
