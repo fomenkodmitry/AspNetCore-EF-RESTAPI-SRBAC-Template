@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
-    public abstract class BaseRepository<TModel, TFilter> 
+    public abstract class BaseRepository<TModel, TFilter>
         where TModel : BaseModel
         where TFilter : BaseFilterDto
     {
@@ -25,7 +25,7 @@ namespace Infrastructure.Repositories
 
         public virtual async Task<TModel> GetById(Guid guid)
         {
-            var data = Context.Set<TModel>().FirstOrDefaultAsync(u => u.Id == guid && u.IsDelete == false);
+            var data = GetDataSet().FirstOrDefaultAsync(u => u.Id == guid && u.IsDelete == false);
             return await data;
         }
 
@@ -34,6 +34,7 @@ namespace Infrastructure.Repositories
             data.CreatorId = creatorId;
             data.DateCreated = DateTime.UtcNow;
             data.IsActive ??= true;
+            data.DateUpdated = DateTime.UtcNow;
             await Context.Set<TModel>().AddAsync(data);
             await Context.SaveChangesAsync();
             return data;
@@ -41,29 +42,32 @@ namespace Infrastructure.Repositories
 
         public async Task<TModel> Edit(TModel data)
         {
+            data.DateUpdated = DateTime.UtcNow;
+            Context.Update(data);
             await Context.SaveChangesAsync();
             return data;
         }
 
-        public async Task<TModel> Delete(TModel model)
+        public async Task<TModel> Delete(TModel data)
         {
-            model.IsDelete = true;
-            model.DateDelete = DateTime.Now;
+            data.IsDelete = true;
+            data.DateDelete = DateTime.Now;
+            data.DateUpdated = DateTime.UtcNow;
+            Context.Update(data);
             await Context.SaveChangesAsync();
-            return model;
+            return data;
         }
 
         protected virtual IQueryable<TModel> ApplyPaging(IQueryable<TModel> source, FilterPagingDto paging)
         {
-            paging ??= new FilterPagingDto { PageSize = _appSettingsConfiguration.DefaultPageSize };
+            paging ??= new FilterPagingDto {PageSize = _appSettingsConfiguration.DefaultPageSize};
             return source
                 .Skip(paging.PageNumber * paging.PageSize)
                 .Take(paging.PageSize);
         }
-        
-        protected virtual IQueryable<TModel> GetDataSet() 
-            => Context.Set<TModel>()
-                .AsQueryable();
+
+        protected virtual IQueryable<TModel> GetDataSet()
+            => Context.Set<TModel>().AsNoTracking();
 
         /// <summary>
         /// Get filtered entities
@@ -72,10 +76,10 @@ namespace Infrastructure.Repositories
         /// <returns></returns>
         public virtual IEnumerable<TModel> GetFiltered(TFilter filter)
         {
-            var result =  GetDataSet();
-            
+            var result = GetDataSet();
+
             result = ApplyFilter(result, filter);
-            
+
             var sort = filter.Sort;
             result = ApplySort(result, ref sort);
             result = ApplyPaging(result, filter.Paging);
@@ -120,7 +124,7 @@ namespace Infrastructure.Repositories
                 result = result.Where(p => p.IsActive == filter.IsActive);
 
             result = result.Where(p => p.IsDelete == false);
-            
+
             return result;
         }
 

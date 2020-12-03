@@ -14,9 +14,13 @@ namespace Domain.Authenticate
         [MinLength(6)]
         [MaxLength(50)]
         public string Password { get; set; }
-
+        /// <summary>
+        /// Http User Agent
+        /// </summary>
         public string UserAgent { get; set; }
-
+        /// <summary>
+        /// Application Version
+        /// </summary>
         public string AppVersion { get; set; }
     }
 }

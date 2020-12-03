@@ -29,9 +29,7 @@ namespace Services.Implementations
             UserRepository userRepository,
             CryptoHelper cryptoHelper,
             ITokenService tokenService,
-            TokenRepository tokenRepository,
-            CodeRepository codeRepository,
-            ICodeService codeService
+            TokenRepository tokenRepository
         )
         {
             _userRepository = userRepository;

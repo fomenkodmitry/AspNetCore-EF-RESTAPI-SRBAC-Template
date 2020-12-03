@@ -6,6 +6,7 @@ using Domain.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Api.Controllers.Base;
 
 namespace Api.Controllers
 {

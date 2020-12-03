@@ -9,8 +9,8 @@ namespace Services.Implementations
 {
     public class CodeService : ICodeService
     {
-        private CodeRepository _codeRepository;
-        private CodeConfiguration _codeConfiguration;
+        private readonly CodeRepository _codeRepository;
+        private readonly CodeConfiguration _codeConfiguration;
 
         public CodeService(CodeRepository codeRepository, CodeConfiguration codeConfiguration)
         {
@@ -56,7 +56,7 @@ namespace Services.Implementations
             {
                 Phone = phone,
                 Code = GenerateCode(props.CodeLength),
-                ReasonId = codeReason,
+                ReasonType = codeReason,
                 DateExpiration = DateTime.UtcNow.AddMinutes(props.LifeTime)
             });
         }
@@ -82,7 +82,7 @@ namespace Services.Implementations
             {
                 Email = email,
                 Code = GenerateCode(props.CodeLength),
-                ReasonId = codeReason,
+                ReasonType = codeReason,
                 DateExpiration = DateTime.UtcNow.AddMinutes(props.LifeTime)
             });
         }

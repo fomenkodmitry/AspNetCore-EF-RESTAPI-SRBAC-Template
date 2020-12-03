@@ -6,9 +6,9 @@
 
     <ItemGroup>
       <PackageReference Include="EntityFrameworkCore.Attributes" Version="1.0.1" />
-      <PackageReference Include="FirebaseCoreSDK" Version="1.1.7" />
+      <PackageReference Include="FirebaseCoreSDK" Version="1.2.0" />
       <PackageReference Include="PasswordGenerator" Version="2.0.5" />
-      <PackageReference Include="Toolbelt.EntityFrameworkCore.IndexAttribute" Version="3.2.0" />
+      <PackageReference Include="Toolbelt.EntityFrameworkCore.IndexAttribute" Version="5.0.0" />
     </ItemGroup>
 
 </Project>

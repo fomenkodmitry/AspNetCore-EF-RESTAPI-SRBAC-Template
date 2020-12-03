@@ -10,16 +10,16 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DBMigrations.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20200630104140_Initials")]
+    [Migration("20201203095545_Initials")]
     partial class Initials
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.1")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+                .UseIdentityByDefaultColumns()
+                .HasAnnotation("Relational:MaxIdentifierLength", 63)
+                .HasAnnotation("ProductVersion", "5.0.0");
 
             modelBuilder.Entity("Domain.Audit.AuditModel", b =>
                 {
@@ -37,6 +37,9 @@ namespace DBMigrations.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("DateDelete")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("DateUpdated")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<bool?>("IsActive")
@@ -61,14 +64,6 @@ namespace DBMigrations.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ObjectId");
-
-                    b.HasIndex("OperationType");
-
-                    b.HasIndex("Roles");
-
-                    b.HasIndex("Status");
 
                     b.ToTable("Audits");
                 });
@@ -95,6 +90,9 @@ namespace DBMigrations.Migrations
                     b.Property<DateTime>("DateExpiration")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<DateTime>("DateUpdated")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
@@ -107,17 +105,10 @@ namespace DBMigrations.Migrations
                     b.Property<string>("Phone")
                         .HasColumnType("text");
 
-                    b.Property<int>("ReasonId")
+                    b.Property<int>("ReasonType")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("UserModelId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("Code");
-
-                    b.HasIndex("UserModelId");
 
                     b.ToTable("Codes");
                 });
@@ -135,6 +126,9 @@ namespace DBMigrations.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("DateDelete")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("DateUpdated")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid>("EntityId")
@@ -157,8 +151,6 @@ namespace DBMigrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EntityId");
-
                     b.ToTable("Files");
                 });
 
@@ -175,6 +167,9 @@ namespace DBMigrations.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("DateDelete")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("DateUpdated")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<bool?>("IsActive")
@@ -210,11 +205,12 @@ namespace DBMigrations.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("DateCreated")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("NOW()");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("DateDelete")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("DateUpdated")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<bool?>("IsActive")
@@ -234,9 +230,7 @@ namespace DBMigrations.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("UserAgent")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValueSql("null");
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("UserId")
                         .IsRequired()
@@ -259,11 +253,12 @@ namespace DBMigrations.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("DateCreated")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("NOW()");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("DateDelete")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("DateUpdated")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
@@ -271,68 +266,51 @@ namespace DBMigrations.Migrations
                         .HasColumnType("text");
 
                     b.Property<bool?>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValueSql("true");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsDelete")
                         .HasColumnType("boolean");
 
                     b.Property<string>("NameFirst")
                         .IsRequired()
-                        .HasColumnType("character varying(20)")
-                        .HasMaxLength(20);
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("NamePatronymic")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValueSql("null")
-                        .HasMaxLength(20);
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("NameSecond")
                         .IsRequired()
-                        .HasColumnType("character varying(20)")
-                        .HasMaxLength(20);
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("character varying(50)")
-                        .HasMaxLength(50);
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Phone")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValueSql("null")
-                        .HasMaxLength(20);
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<int>("Roles")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("Phone")
-                        .IsUnique();
-
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("Domain.Code.CodeModel", b =>
-                {
-                    b.HasOne("Domain.User.UserModel", null)
-                        .WithMany("Codes")
-                        .HasForeignKey("UserModelId");
                 });
 
             modelBuilder.Entity("Domain.Token.TokenModel", b =>
                 {
                     b.HasOne("Domain.User.UserModel", "User")
-                        .WithMany("Tokens")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

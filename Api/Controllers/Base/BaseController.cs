@@ -5,7 +5,7 @@ using System;
 using System.Security.Claims;
 using Domain.Error;
 
-namespace Api.Controllers
+namespace Api.Controllers.Base
 {
     public class BaseController : Controller
     {
@@ -19,7 +19,7 @@ namespace Api.Controllers
 
         protected IUserService UserService { get; }
         
-        private UserModel _currentUser = null;
+        private UserModel _currentUser;
 
         protected UserModel CurrentUser
         {

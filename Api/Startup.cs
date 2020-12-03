@@ -216,8 +216,8 @@ namespace Api
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "API Template", Version = "v1"});
 
-                // c.IncludeXmlComments(Path.Combine(System.AppContext.BaseDirectory, "Api.xml"));
-                // c.IncludeXmlComments(Path.Combine(System.AppContext.BaseDirectory, "Domain.xml"));
+                c.IncludeXmlComments(Path.Combine(System.AppContext.BaseDirectory, "Api.xml"));
+                c.IncludeXmlComments(Path.Combine(System.AppContext.BaseDirectory, "Domain.xml"));
                 
                 c.AddSecurityDefinition(
                     "Bearer", securityScheme
@@ -239,8 +239,7 @@ namespace Api
             });
             services
                 .AddControllers()
-                .AddJsonOptions(options =>
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+                .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -12,6 +12,7 @@ using Domain.Srbac;
 using Infrastructure.FileStorage;
 using Infrastructure.Host;
 using Infrastructure.Repositories.File;
+using MimeKit;
 
 namespace Services.Implementations
 {
@@ -35,24 +36,23 @@ namespace Services.Implementations
             _hostConfiguration = hostConfiguration;
         }
 
-        public async Task<string> Create(
+        public async Task<string> CreateFromBase64(
             FilesTypes fileType,
             Guid entityId,
             Guid creatorId,
             SrbacRoles creatorRole,
             string contentBase64 = null,
-            string fileName = null,
-            bool deactivateOldFiles = true
+            string fileName = null
         )
         {
             try
             {
-                if(string.IsNullOrWhiteSpace(contentBase64))
+                if (string.IsNullOrWhiteSpace(contentBase64))
                     return null;
-                
+
                 if (string.IsNullOrWhiteSpace(fileName))
                     fileName = DateTime.UtcNow.ToString("yyyyMMddTHHmmssfffffffK");
-                
+
                 var name = Path.GetFileNameWithoutExtension(fileName);
                 var extension = GetFileExtension(contentBase64);
 
@@ -72,9 +72,8 @@ namespace Services.Implementations
                 );
                 Directory.CreateDirectory(path);
 
-                var filePath = Path.Combine(path, fileModel.Id.ToString());
-                await File.WriteAllTextAsync(filePath, contentBase64);
-                await _fileRepository.DeleteFilesByFileType(fileType, entityId);
+                var filePath = Path.Combine(path, $"{fileModel.Id.ToString()}.{extension}");
+                await File.WriteAllBytesAsync(filePath, Convert.FromBase64String(contentBase64));
                 await _auditService.Success(
                     AuditOperationTypes.CreateFile,
                     "",
@@ -116,22 +115,12 @@ namespace Services.Implementations
         /// <returns>Henceforth file extension from string.</returns>
         private static string GetFileExtension(string base64String)
         {
-            var data = base64String.Split(",");
-            var res = data[0] switch
-            {
-                "data:image/jpeg;base64" => "jpg",
-                "data:image/png;base64" => "png",
-                _ => ""
-            };
-
-            if (!string.IsNullOrEmpty(res))
-                return res;
-
-            res = base64String.Substring(0, 5).ToUpper() switch
+            var res = base64String.Substring(0, 5).ToUpper() switch
             {
                 "IVBOR" => "png",
                 "/9J/4" => "jpg",
-                _ => res
+                "/JVBER/4" => "pdf",
+                _ => null
             };
 
             return res;
@@ -139,30 +128,12 @@ namespace Services.Implementations
 
         public async Task<string> GetFileUrl(Guid entityId, FilesTypes filesType)
         {
-            var res = await _fileRepository.GetByFileType(filesType, entityId);
-            return res == null ? null : $"{_hostConfiguration.HostNameWithProtocol}/api/File/{res.Id}";
-        }
-
-        public Dictionary<Guid, string> GetFileUrls(IEnumerable<Guid> entityIds, FilesTypes filesType)
-        {
-            var res = _fileRepository.GetByFileType(filesType, entityIds);
-
-            return res?.AsEnumerable() //  дальнейшие операции осуществляются с коллекцией, а не на SQL
-                .GroupBy(p => p.EntityId) //  на случай двух файлов по одному entity
-                .ToDictionary(
-                    p => p.Key, //  ключ - EntityId 
-                    p => //  значение - FileId
-                    {
-                        //  Последний файл - первый сверху по дате desc
-                        var lastFile = p.OrderByDescending(f => f.DateCreated).FirstOrDefault().Id.Value;
-                        return $"{_hostConfiguration.HostNameWithProtocol}/api/File/{lastFile}";
-                    });
+            throw new NotImplementedException();
         }
 
         public IEnumerable<string> GetFileUrls(Guid entityId, FilesTypes filesType)
         {
-            var res = _fileRepository.GetByFileType(filesType, new[] {entityId});
-            return res?.ToList().Select( p => $"{_hostConfiguration.HostNameWithProtocol}/api/File/{p.Id}");
+            throw new NotImplementedException();
         }
 
         public async Task<ResultContainer<FileStorageDto>> GetFileById(Guid fileId)
@@ -185,22 +156,10 @@ namespace Services.Implementations
             return new ResultContainer<FileStorageDto>(
                 new FileStorageDto()
                 {
-                    ContentType = @$"image/{res.Extension}",
-                    Content = Convert.FromBase64String(await File.ReadAllTextAsync(path))
+                    ContentType = MimeTypes.GetMimeType(path),
+                    Content = await File.ReadAllBytesAsync(path)
                 }
             );
-        }
-      
-        public IEnumerable<TModel> GetImagesWithModel<TModel>(IEnumerable<TModel> result, FilesTypes filesType) where TModel : BaseImageModel
-        {
-            var images = GetFileUrls(result.Select(p => p.Id.Value), filesType);
-            result = result.Select(element =>
-            {
-                if (images.TryGetValue(element.Id.Value, out var image))
-                    element.Image = image;
-                return element;
-            });
-            return result;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Domain.Filter;
 using Domain.Srbac;
 using Infrastructure.AppSettings;
@@ -15,7 +14,7 @@ namespace Infrastructure.Repositories.Srbac
 
         public SrbacRepository(Context context, AppSettingsConfiguration appSettingsConfiguration) : base(context, appSettingsConfiguration)
         {
-            RolesPermissions = Context.SrbacRolePermissions.ToList();
+            RolesPermissions = Context.SrbacRolePermissions.AsNoTracking().ToList();
         }
     }
 }

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Domain.Base;
 using Domain.Srbac;
 using Domain.User;
+using Toolbelt.ComponentModel.DataAnnotations.Schema.V5;
 
 namespace Domain.Token
 {
@@ -16,9 +17,11 @@ namespace Domain.Token
 
         public string PushToken { get; set; }
 
+        [IndexColumn(IsClustered =  false, IsUnique = false)]
         [Required]
         public Guid? UserId { get; set; }
 
+        [IndexColumn(IsClustered =  false, IsUnique = false)]
         [Required]
         public SrbacRoles Role { get; set; }
 
