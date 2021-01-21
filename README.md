@@ -7,3 +7,4 @@ Includes:
   * Entity framework core
   * REST Api
   * Email sender
+  * Sheduler (implement сrontab)
