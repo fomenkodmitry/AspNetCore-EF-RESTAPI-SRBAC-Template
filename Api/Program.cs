@@ -1,4 +1,5 @@
 using System;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,7 @@ namespace Api
     {
         private static readonly string Env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         private static readonly string LogFilePath = string.IsNullOrEmpty(Env) ? "nlog.config" : $"nlog.{Env}.config";
-        
+
         public static void Main(string[] args)
         {
             var logger = NLogBuilder.ConfigureNLog(LogFilePath).GetCurrentClassLogger();
@@ -34,6 +35,7 @@ namespace Api
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); })
                 .ConfigureLogging(
                     logging =>

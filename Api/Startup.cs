@@ -1,18 +1,13 @@
 using Api.Middleware;
 using Api.Scheduler;
 using Api.Utils.AutoMapper;
-using AutoMapper;
 using Domain.Audit;
 using Domain.Authenticate;
 using Domain.Code;
 using Domain.FileStorage;
-using Domain.Push;
 using Domain.Srbac;
 using Domain.Token;
 using Domain.User;
-using FirebaseCoreSDK;
-using FirebaseCoreSDK.Configuration;
-using FirebaseCoreSDK.Firebase.Auth.ServiceAccounts;
 using Infrastructure;
 using Infrastructure.AppSettings;
 using Infrastructure.Code;
@@ -21,7 +16,6 @@ using Infrastructure.Crypto;
 using Infrastructure.Email;
 using Infrastructure.FileStorage;
 using Infrastructure.Host;
-using Infrastructure.Push;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.Audit;
 using Infrastructure.Repositories.Code;
@@ -46,6 +40,8 @@ using System;
 using System.IO;
 using System.Text;
 using System.Text.Json.Serialization;
+using Autofac;
+using AutoMapper.Contrib.Autofac.DependencyInjection;
 
 namespace Api
 {
@@ -56,6 +52,7 @@ namespace Api
         private static readonly string AppSettings =
             string.IsNullOrEmpty(Env) ? "appsettings.json" : $"appsettings.{Env}.json";
 
+        public ILifetimeScope AutofacContainer { get; private set; }
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration)
@@ -67,118 +64,6 @@ namespace Api
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<Context>(options =>
-            {
-                options.UseNpgsql(
-                        Configuration.GetConnectionString("DefaultConnection"),
-                        x => x.MigrationsAssembly("DBMigrations")
-                )
-                    // .UseLoggerFactory(LoggerFactory.Create(p => p.AddConsole()))
-                ;
-            });
-
-            #region Firebase
-
-            // ToDo: Edit config and activate this
-            /* var configuration =
-                 new FirebaseSDKConfiguration
-                 {
-                     Credentials =
-                         new JsonServiceAccountCredentials(
-                             Path.Combine(Directory.GetCurrentDirectory(), "kpd-firebase.json")
-                         )
-                 };
-             var firebaseClient = new FirebaseClient(configuration);
-             services.AddSingleton(firebaseClient);
-            */
-            #endregion
-
-            // Auto Mapper Configurations
-            var mappingConfig = new MapperConfiguration(mc => { mc.AddProfile(new MappingProfile()); });
-            IMapper mapper = mappingConfig.CreateMapper();
-            services.AddSingleton(mapper);
-
-            #region DI Service
-
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile(AppSettings, optional: true, reloadOnChange: false);
-            services.AddSingleton(builder.Build());
-            services.AddTransient<IAuthenticationService, AuthenticationService>();
-            services.AddTransient<ITokenService, TokenService>();
-            services.AddTransient<ICodeService, CodeService>();
-            services.AddTransient<IUserService, UserService>();
-
-            services.AddSingleton<ISrbacService, SrbacService>();
-            services.AddSingleton<CryptoHelper>();
-            services.AddSingleton<IHostedService, ScheduleTask>();
-            // ToDo: Edit config and activate this
-            // services.AddTransient<IPushService, NotificationService>();
-
-            var fileStorageConfig = Configuration
-                .GetSection(nameof(FileStorageConfiguration))
-                .Get<FileStorageConfiguration>();
-            services.AddSingleton(fileStorageConfig);
-            services.AddTransient<IFileStorageService, FileStorageService>();
-            services.AddTransient<IAuditService, AuditService>();
-
-            var appSettingsConfig = Configuration
-                .GetSection(nameof(AppSettingsConfiguration))
-                .Get<AppSettingsConfiguration>();
-            services.AddSingleton(appSettingsConfig);
-            #endregion
-
-            #region DI Repository
-
-            services.AddSingleton(sp =>
-            {
-                using var scope = sp.CreateScope();
-                var dbContext = scope.ServiceProvider.GetService<Context>();
-                var settings = scope.ServiceProvider.GetService<AppSettingsConfiguration>();
-                return new SrbacRepository(dbContext, settings);
-            });
-            services.AddTransient<AuditRepository>();
-            services.AddTransient<FileRepository>();
-            services.AddTransient<UserRepository>();
-            services.AddTransient<TokenRepository>();
-            services.AddTransient<CodeRepository>();
-            services.AddTransient<SqlRepository>();
-            #endregion
-
-            #region DI Infrastructure
-
-            services.AddSingleton(typeof(TemplateContainer));
-
-            var emailConfig = Configuration
-                .GetSection(nameof(EmailConfiguration))
-                .Get<EmailConfiguration>();
-            services.AddSingleton(emailConfig);
-            services.AddSingleton<IEmailSender, EmailSender>();
-
-            var smsConfig = Configuration
-                .GetSection(nameof(SmsConfiguration))
-                .Get<SmsConfiguration>();
-            services.AddSingleton(smsConfig);
-            if (smsConfig.IsStub)
-                services.AddSingleton<ISMSSender, StubSMSSender>();
-            // ToDo: Edit config and activate this
-            // services.AddSingleton<IPushSender, FirebasePushSender>();
-
-            var hostConfig = Configuration
-                .GetSection(nameof(HostConfiguration))
-                .Get<HostConfiguration>();
-            services.AddSingleton(hostConfig);
-            
-            var codeConfig = Configuration
-                .GetSection(nameof(CodeConfiguration))
-                .Get<CodeConfiguration>();
-            services.AddSingleton(codeConfig);
-
-            services.AddTransient<InitializeInfrastructure>();
-
-            #endregion
-
             services.AddCors();
             services.AddMvc(p => p.EnableEndpointRouting = false);
 
@@ -218,7 +103,7 @@ namespace Api
 
                 c.IncludeXmlComments(Path.Combine(System.AppContext.BaseDirectory, "Api.xml"));
                 c.IncludeXmlComments(Path.Combine(System.AppContext.BaseDirectory, "Domain.xml"));
-                
+
                 c.AddSecurityDefinition(
                     "Bearer", securityScheme
                 );
@@ -242,6 +127,142 @@ namespace Api
                 .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         }
 
+        public void ConfigureContainer(ContainerBuilder builder)
+        {
+            var dbContextOptionsBuilder =
+                new DbContextOptionsBuilder<Context>().UseNpgsql(
+                    Configuration.GetConnectionString("DefaultConnection"));
+            builder
+                .RegisterType<Context>()
+                .WithParameter("options", dbContextOptionsBuilder.Options)
+                .InstancePerLifetimeScope();
+
+            #region Firebase
+
+            // ToDo: Edit config and activate this, if need FB
+            //  var configuration =
+            //      new FirebaseSDKConfiguration
+            //      {
+            //          Credentials =
+            //              new JsonServiceAccountCredentials(
+            //                  Path.Combine(Directory.GetCurrentDirectory(), "kpd-firebase.json")
+            //              )
+            //      };
+            //  var firebaseClient = new FirebaseClient(configuration);
+            //  builder.RegisterInstance(firebaseClient).SingleInstance();
+
+            #endregion
+
+            // Auto Mapper Configurations
+            builder.RegisterAutoMapper(p => p.AddProfile(new MappingProfile()));
+
+            #region DI Service
+
+            builder
+                .RegisterInstance(new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                    .AddJsonFile(AppSettings, optional: true, reloadOnChange: false)
+                    .Build()
+                )
+                .As<IConfigurationBuilder>()
+                .SingleInstance();
+
+            builder.RegisterType<AuthenticationService>().As<IAuthenticationService>();
+            builder.RegisterType<TokenService>().As<ITokenService>();
+            builder.RegisterType<CodeService>().As<ICodeService>();
+            builder.RegisterType<UserService>().As<IUserService>();
+
+            builder.RegisterType<SrbacService>().As<ISrbacService>().SingleInstance();
+            builder.RegisterType<CryptoHelper>().SingleInstance();
+            builder.RegisterType<ScheduleTask>().As<IHostedService>().SingleInstance();
+            // ToDo: Edit config and activate this
+            // builder.RegisterType<NotificationService>().As<IPushService>();
+
+            builder
+                .Register(p => Configuration
+                    .GetSection(nameof(FileStorageConfiguration))
+                    .Get<FileStorageConfiguration>()
+                )
+                .SingleInstance();
+
+            builder.RegisterType<FileStorageService>().As<IFileStorageService>();
+            builder.RegisterType<AuditService>().As<IAuditService>();
+
+            builder
+                .RegisterInstance(Configuration
+                    .GetSection(nameof(AppSettingsConfiguration))
+                    .Get<AppSettingsConfiguration>()
+                )
+                .As<AppSettingsConfiguration>()
+                .SingleInstance();
+
+            #endregion
+
+            #region DI Repository
+
+            builder.Register(sp =>
+                {
+                    var dbContext = sp.Resolve<Context>();
+                    var settings = sp.Resolve<AppSettingsConfiguration>();
+                    return new SrbacRepository(dbContext, settings);
+                })
+                .AsSelf();
+            
+            builder.RegisterType<AuditRepository>();
+            builder.RegisterType<FileRepository>();
+            builder.RegisterType<UserRepository>();
+            builder.RegisterType<TokenRepository>();
+            builder.RegisterType<CodeRepository>();
+            builder.RegisterType<SqlRepository>();
+            #endregion
+            
+            #region DI Infrastructure
+            
+            builder.RegisterType<TemplateContainer>().SingleInstance();
+            
+            builder
+                .RegisterInstance(Configuration
+                    .GetSection(nameof(EmailConfiguration))
+                    .Get<EmailConfiguration>()
+                )
+                .As<EmailConfiguration>()
+                .SingleInstance();
+            
+            builder.RegisterType<EmailSender>().As<IEmailSender>();
+
+            var smsConfig = Configuration
+                .GetSection(nameof(SmsConfiguration))
+                .Get<SmsConfiguration>();
+            
+            builder
+                .RegisterInstance(smsConfig)
+                .As<SmsConfiguration>()
+                .SingleInstance();
+            
+            if (smsConfig.IsStub)
+                builder.RegisterType<StubSMSSender>().As<ISMSSender>();
+
+            // ToDo: Edit config and activate this
+            // builder.RegisterType<IPushSender>().As<IPushSender>();
+
+            builder
+                .RegisterInstance(Configuration
+                    .GetSection(nameof(HostConfiguration))
+                    .Get<HostConfiguration>())
+                .As<HostConfiguration>()
+                .SingleInstance();
+            builder
+                .RegisterInstance(Configuration
+                    .GetSection(nameof(CodeConfiguration))
+                    .Get<CodeConfiguration>())
+                .As<CodeConfiguration>()
+                .SingleInstance();
+            
+            builder.RegisterType<InitializeInfrastructure>();
+            #endregion
+        }
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(
             IApplicationBuilder app,
@@ -255,13 +276,13 @@ namespace Api
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "KPD v1"); });
-            
+
             // global cors policy
             app.UseCors(x => x
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader());
-            
+
             // if (env.IsDevelopment())
             // {
             app.UseDeveloperExceptionPage();
@@ -282,7 +303,7 @@ namespace Api
             UpdateDatabase(app);
 
             infrastructure.FileStorage();
-            
+
             var logger = loggerFactory.CreateLogger("LoggerInStartup");
             logger.LogInformation($"\n\n{DateTime.Now} | Startup logger was launched");
         }
