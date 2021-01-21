@@ -17,12 +17,6 @@ using Infrastructure.Email;
 using Infrastructure.FileStorage;
 using Infrastructure.Host;
 using Infrastructure.Repositories;
-using Infrastructure.Repositories.Audit;
-using Infrastructure.Repositories.Code;
-using Infrastructure.Repositories.File;
-using Infrastructure.Repositories.Srbac;
-using Infrastructure.Repositories.Token;
-using Infrastructure.Repositories.User;
 using Infrastructure.SMS;
 using Infrastructure.Template;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -200,19 +194,7 @@ namespace Api
 
             #region DI Repository
 
-            builder.Register(sp =>
-                {
-                    var dbContext = sp.Resolve<Context>();
-                    var settings = sp.Resolve<AppSettingsConfiguration>();
-                    return new SrbacRepository(dbContext, settings);
-                })
-                .AsSelf();
-            
-            builder.RegisterType<AuditRepository>();
-            builder.RegisterType<FileRepository>();
-            builder.RegisterType<UserRepository>();
-            builder.RegisterType<TokenRepository>();
-            builder.RegisterType<CodeRepository>();
+            builder.RegisterType<GenericRepository>().As<IGenericRepository>();
             builder.RegisterType<SqlRepository>();
             #endregion
             

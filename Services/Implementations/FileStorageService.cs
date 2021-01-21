@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 using Domain.Audit;
 using Domain.Base;
-using Domain.Error;
 using Domain.FileStorage;
 using Domain.Srbac;
 using Infrastructure.FileStorage;
-using Infrastructure.Host;
-using Infrastructure.Repositories.File;
+using Infrastructure.Repositories;
 using MimeKit;
 
 namespace Services.Implementations
@@ -19,21 +16,17 @@ namespace Services.Implementations
     public class FileStorageService : IFileStorageService
     {
         private readonly FileStorageConfiguration _fileStorageConfiguration;
-        private readonly FileRepository _fileRepository;
+        private readonly IGenericRepository _genericRepository;
         private readonly IAuditService _auditService;
-        private readonly HostConfiguration _hostConfiguration;
 
         public FileStorageService(
             FileStorageConfiguration fileStorageConfiguration,
-            FileRepository fileRepository,
             IAuditService auditService,
-            HostConfiguration hostConfiguration
-        )
+            IGenericRepository genericRepository)
         {
             _fileStorageConfiguration = fileStorageConfiguration;
-            _fileRepository = fileRepository;
             _auditService = auditService;
-            _hostConfiguration = hostConfiguration;
+            _genericRepository = genericRepository;
         }
 
         public async Task<string> CreateFromBase64(
@@ -51,19 +44,20 @@ namespace Services.Implementations
                     return null;
 
                 if (string.IsNullOrWhiteSpace(fileName))
-                    fileName = DateTime.UtcNow.ToString("yyyyMMddTHHmmssfffffffK");
+                    fileName = Guid.NewGuid().ToString();
 
                 var name = Path.GetFileNameWithoutExtension(fileName);
                 var extension = GetFileExtension(contentBase64);
 
                 using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-                var fileModel = await _fileRepository.Create(new FileModel
+                var fileModel = await _genericRepository.Create(new FileModel
                 {
                     EntityType = fileType,
                     Extension = extension,
                     Name = name,
-                    EntityId = entityId
-                }, creatorId);
+                    EntityId = entityId, CreatorId = creatorId
+                    
+                });
 
                 var path = Path.Combine(
                     _fileStorageConfiguration.AbsolutePath,
@@ -138,7 +132,7 @@ namespace Services.Implementations
 
         public async Task<ResultContainer<FileStorageDto>> GetFileById(Guid fileId)
         {
-            var res = await _fileRepository.GetById(fileId);
+            var res = await _genericRepository.GetById<FileModel>(fileId);
 
             if (res == null)
                 return new ResultContainer<FileStorageDto>(null);

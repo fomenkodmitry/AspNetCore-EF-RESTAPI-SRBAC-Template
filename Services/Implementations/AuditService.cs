@@ -4,18 +4,18 @@ using System.Threading.Tasks;
 using Domain.Audit;
 using Domain.Base;
 using Domain.Srbac;
-using Infrastructure.Repositories.Audit;
+using Infrastructure.Repositories;
 using Newtonsoft.Json;
 
 namespace Services.Implementations
 {
     public class AuditService : IAuditService
     {
-        private readonly AuditRepository _auditRepository;
+        private readonly IGenericRepository _genericRepository;
 
-        public AuditService(AuditRepository auditRepository)
+        public AuditService(IGenericRepository genericRepository)
         {
-            _auditRepository = auditRepository;
+            _genericRepository = genericRepository;
         }
 
         public async Task<ResultContainer<AuditModel>> Success(
@@ -35,7 +35,7 @@ namespace Services.Implementations
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                 }
             );
-            var res = await _auditRepository.Create(
+            var res = await _genericRepository.Create(
                 new AuditModel
                 {
                     OperationType = operationType,
@@ -43,9 +43,9 @@ namespace Services.Implementations
                     Roles = role,
                     Comment = message,
                     ObjectDescription = obj,
-                    ObjectId = objectId
-                },
-                creatorId
+                    ObjectId = objectId,
+                    CreatorId =  creatorId
+                }
             );
             return new ResultContainer<AuditModel>(res);
         }
@@ -67,7 +67,7 @@ namespace Services.Implementations
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                 }
             );
-            var res = await _auditRepository.Create(
+            var res = await _genericRepository.Create(
                 new AuditModel
                 {
                     OperationType = operationType,
@@ -75,9 +75,9 @@ namespace Services.Implementations
                     Roles = role,
                     Comment = message,
                     ObjectDescription = obj,
-                    ObjectId = objectId
-                },
-                creatorId
+                    ObjectId = objectId,
+                    CreatorId = creatorId
+                }
             );
             return new ResultContainer<AuditModel>(res);
         }
@@ -99,7 +99,7 @@ namespace Services.Implementations
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                 }
             );
-            var res = await _auditRepository.Create(
+            var res = await _genericRepository.Create(
                 new AuditModel
                 {
                     OperationType = operationType,
@@ -107,16 +107,16 @@ namespace Services.Implementations
                     Roles = role,
                     Comment = message,
                     ObjectDescription = obj,
-                    ObjectId = objectId
-                },
-                creatorId
+                    ObjectId = objectId,
+                    CreatorId = creatorId
+                }
             );
             return new ResultContainer<AuditModel>(res);
         }
 
         public ResultContainer<IEnumerable<AuditModel>> GetAuditRecordByObjectId(Guid? id)
         {
-            var res =  _auditRepository.GetAuditRecordByObjectId(id);
+            var res =  _genericRepository.Get<AuditModel>(p => p.ObjectId == id);
             return new ResultContainer<IEnumerable<AuditModel>>(res);
         }
     }

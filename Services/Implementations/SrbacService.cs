@@ -1,22 +1,20 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Domain.Srbac;
-using Infrastructure.Repositories.Srbac;
+﻿using Domain.Srbac;
+using Infrastructure.Repositories;
 
 namespace Services.Implementations
 {
     public class SrbacService : ISrbacService
     {
-        private SrbacRepository _srbacRepository;
+        private readonly IGenericRepository _genericRepository;
 
-        public SrbacService(SrbacRepository srbacRepository)
+        public SrbacService(IGenericRepository genericRepository)
         {
-            _srbacRepository = srbacRepository;
+            _genericRepository = genericRepository;
         }
 
         public bool CheckPermission(SrbacRoles role, SrbacPermissions permission)
         {
-            var res = _srbacRepository.RolesPermissions.FirstOrDefault(
+            var res = _genericRepository.GetOne<SrbacRolePermissionModel>(
                 p => p.Permission == permission && p.Role == role
             );
             return res != null;

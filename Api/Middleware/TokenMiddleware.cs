@@ -3,7 +3,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Domain.Srbac;
-using Infrastructure.Repositories.Token;
+using Domain.Token;
+using Infrastructure.Repositories;
 
 namespace Api.Middleware
 {
@@ -16,7 +17,7 @@ namespace Api.Middleware
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context,TokenRepository tokenRepository)
+        public async Task InvokeAsync(HttpContext context, IGenericRepository tokenRepository)
         {
             if (context.User.FindFirstValue(ClaimTypes.Sid) == null)
             {
@@ -24,11 +25,14 @@ namespace Api.Middleware
 
                 return;
             }
-            var hasTokenIsActive = await tokenRepository.HasActiveToken(
-                Guid.Parse(context.User.FindFirstValue(ClaimTypes.Sid)),
-                Guid.Parse(context.User.FindFirstValue(ClaimTypes.Name)),
-                Enum.Parse<SrbacRoles>(context.User.FindFirstValue(ClaimTypes.Role))
-            );
+            var hasTokenIsActive = tokenRepository.GetOne<TokenModel>(
+                p => 
+                    p.UserId == Guid.Parse(context.User.FindFirstValue(ClaimTypes.Sid))
+                     && p.Role == Enum.Parse<SrbacRoles>(context.User.FindFirstValue(ClaimTypes.Role))
+                     && p.Id == Guid.Parse(context.User.FindFirstValue(ClaimTypes.Name))
+                     && p.IsActive == true
+            ) != null;
+            
             if(!hasTokenIsActive)
                 context.Response.StatusCode = 401;
             else

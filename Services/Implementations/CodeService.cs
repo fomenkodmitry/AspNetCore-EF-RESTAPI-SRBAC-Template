@@ -1,20 +1,20 @@
 ﻿using Domain.Code;
-using Infrastructure.Repositories.Code;
 using PasswordGenerator;
 using System;
 using System.Threading.Tasks;
 using Infrastructure.Code;
+using Infrastructure.Repositories;
 
 namespace Services.Implementations
 {
     public class CodeService : ICodeService
     {
-        private readonly CodeRepository _codeRepository;
+        private readonly IGenericRepository _genericRepository;
         private readonly CodeConfiguration _codeConfiguration;
 
-        public CodeService(CodeRepository codeRepository, CodeConfiguration codeConfiguration)
+        public CodeService(IGenericRepository genericRepository, CodeConfiguration codeConfiguration)
         {
-            _codeRepository = codeRepository;
+            _genericRepository = genericRepository;
             _codeConfiguration = codeConfiguration;
         }
 
@@ -35,14 +35,14 @@ namespace Services.Implementations
 
         public async Task<bool> CheckPhoneCodeExists(string phone, string code, CodeReason codeReason, bool deactivate = true)
         {
-            var dbCode = await _codeRepository.GetByPhone(phone, code, codeReason);
+            var dbCode =  _genericRepository.GetOne<CodeModel>(p => p.Code == code && p.Phone == phone && p.ReasonType == codeReason);
 
             var result = dbCode?.IsActive == true && dbCode.DateExpiration > DateTime.UtcNow;
 
             if (dbCode != null && deactivate)
             {
                 dbCode.IsActive = false;
-                await _codeRepository.Edit(dbCode);
+                await _genericRepository.Update(dbCode);
             }
 
             return result;
@@ -52,7 +52,7 @@ namespace Services.Implementations
         {
             var props = _codeConfiguration.Data[Enum.GetName(typeof(CodeReason), codeReason)];
             
-            return await _codeRepository.Create(new CodeModel
+            return await _genericRepository.Create(new CodeModel
             {
                 Phone = phone,
                 Code = GenerateCode(props.CodeLength),
@@ -63,12 +63,12 @@ namespace Services.Implementations
 
         public async Task<bool> CheckEmailCodeExists(string email, string code, CodeReason codeReason, bool deactivate = true)
         {
-            var dbCode = await _codeRepository.GetByEmail(email, code, codeReason);
+            var dbCode =  _genericRepository.GetOne<CodeModel>(p => p.Code == code && p.Email == email && p.ReasonType == codeReason);
 
             if (deactivate)
             {
                 dbCode.IsActive = false;
-                await _codeRepository.Edit(dbCode);
+                await _genericRepository.Update(dbCode);
             }
 
             return dbCode?.IsActive == true && dbCode.DateExpiration > DateTime.UtcNow;
@@ -78,7 +78,7 @@ namespace Services.Implementations
         {
             var props = _codeConfiguration.Data[Enum.GetName(typeof(CodeReason), codeReason)];
 
-            return await _codeRepository.Create(new CodeModel
+            return await _genericRepository.Create(new CodeModel
             {
                 Email = email,
                 Code = GenerateCode(props.CodeLength),
