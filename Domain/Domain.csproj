@@ -11,4 +11,10 @@
       <PackageReference Include="Toolbelt.EntityFrameworkCore.IndexAttribute" Version="5.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Domain.xml">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

@@ -51,8 +51,6 @@ namespace Api
 
         private static readonly string AppSettings =
             string.IsNullOrEmpty(Env) ? "appsettings.json" : $"appsettings.{Env}.json";
-
-        public ILifetimeScope AutofacContainer { get; private set; }
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration)
@@ -165,7 +163,7 @@ namespace Api
                     .AddJsonFile(AppSettings, optional: true, reloadOnChange: false)
                     .Build()
                 )
-                .As<IConfigurationBuilder>()
+                .As<IConfigurationRoot>()
                 .SingleInstance();
 
             builder.RegisterType<AuthenticationService>().As<IAuthenticationService>();
@@ -184,6 +182,7 @@ namespace Api
                     .GetSection(nameof(FileStorageConfiguration))
                     .Get<FileStorageConfiguration>()
                 )
+                .As<FileStorageConfiguration>()
                 .SingleInstance();
 
             builder.RegisterType<FileStorageService>().As<IFileStorageService>();
