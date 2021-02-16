@@ -4,7 +4,7 @@ Includes:
   * DDD style
   * Srbac (Simple Rbac)
   * Firebase (Google push sender)
-  * Entity framework core
+  * Entity framework core (generic repostiory)
   * REST Api
   * Email sender
-  * Sheduler (implement сrontab)
+  * Sheduler (implement сrontab) Ncrontab
