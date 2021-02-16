@@ -1,4 +1,5 @@
-﻿using Domain.Base;
+﻿using System;
+using Domain.Base;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Domain.Srbac;

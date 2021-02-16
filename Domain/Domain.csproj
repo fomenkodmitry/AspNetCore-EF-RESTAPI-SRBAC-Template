@@ -5,6 +5,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="10.1.1" />
+      <PackageReference Include="AutoMapper.Collection.EntityFramework" Version="7.0.1" />
+      <PackageReference Include="AutoMapper.Contrib.Autofac.DependencyInjection" Version="5.2.0" />
       <PackageReference Include="EntityFrameworkCore.Attributes" Version="1.0.1" />
       <PackageReference Include="FirebaseCoreSDK" Version="1.2.0" />
       <PackageReference Include="PasswordGenerator" Version="2.0.5" />

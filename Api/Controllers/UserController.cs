@@ -1,4 +1,5 @@
-﻿using Api.Controllers.Base;
+﻿using System;
+using Api.Controllers.Base;
 using AutoMapper;
 using Domain.Filter;
 using Domain.User;
@@ -13,23 +14,21 @@ namespace Api.Controllers
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController : BaseApiController<UserModel, BaseFilterDto>
+    public class UserController : BaseApiController<UserModel, UserCreateDto, UserUpdateDto, BaseFilterDto>
     {
         /// <summary>
         /// DI
         /// </summary>
-        /// <param name="mapper"></param>
         /// <param name="userService"></param>
-        public UserController(IMapper mapper, IUserService userService) : base(userService, mapper)
+        public UserController(IUserService userService) : base(userService)
         {
         }
 
         /// <summary>
         /// Get current user data
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Current user</returns>
         [HttpGet("[action]")]
         public ActionResult<UserModel> Self() => CurrentUser;
-
     }
 }

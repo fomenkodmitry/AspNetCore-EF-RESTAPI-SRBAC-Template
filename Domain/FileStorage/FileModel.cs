@@ -1,6 +1,6 @@
-﻿﻿﻿using System;
+﻿using System;
 using Domain.Base;
-  using Toolbelt.ComponentModel.DataAnnotations.Schema.V5;
+using Toolbelt.ComponentModel.DataAnnotations.Schema.V5;
 
   namespace Domain.FileStorage
 {

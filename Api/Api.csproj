@@ -4,11 +4,13 @@
         <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DocumentationFile>Api.xml</DocumentationFile>
+    </PropertyGroup>
+
     <ItemGroup>
       <PackageReference Include="Autofac" Version="6.1.0" />
       <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
-      <PackageReference Include="AutoMapper" Version="10.1.1" />
-      <PackageReference Include="AutoMapper.Contrib.Autofac.DependencyInjection" Version="5.2.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.3" />
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
@@ -28,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Update="kpd-firebase.json">
+      <Content Update="firebase.json">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

@@ -1,6 +1,5 @@
 using Api.Middleware;
 using Api.Scheduler;
-using Api.Utils.AutoMapper;
 using Domain.Audit;
 using Domain.Authenticate;
 using Domain.Code;
@@ -36,6 +35,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Autofac;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
+using Domain.DomainToModelProfile;
 
 namespace Api
 {
@@ -91,10 +91,15 @@ namespace Api
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "API Template", Version = "v1"});
+                c.SwaggerDoc("v1",
+                    new OpenApiInfo
+                    {
+                        Title = "Admin Portal API", Version = "v1",
+                        Description = Configuration["AppSettings:Environment"]
+                    });
 
-                c.IncludeXmlComments(Path.Combine(System.AppContext.BaseDirectory, "Api.xml"));
-                c.IncludeXmlComments(Path.Combine(System.AppContext.BaseDirectory, "Domain.xml"));
+                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Api.xml"));
+                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Domain.xml"));
 
                 c.AddSecurityDefinition(
                     "Bearer", securityScheme
@@ -114,6 +119,7 @@ namespace Api
                         }
                     });
             });
+
             services
                 .AddControllers()
                 .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -137,7 +143,7 @@ namespace Api
             //      {
             //          Credentials =
             //              new JsonServiceAccountCredentials(
-            //                  Path.Combine(Directory.GetCurrentDirectory(), "kpd-firebase.json")
+            //                  Path.Combine(Directory.GetCurrentDirectory(), "firebase.json")
             //              )
             //      };
             //  var firebaseClient = new FirebaseClient(configuration);
@@ -146,7 +152,7 @@ namespace Api
             #endregion
 
             // Auto Mapper Configurations
-            builder.RegisterAutoMapper(p => p.AddProfile(new MappingProfile()));
+            builder.RegisterAutoMapper(p => p.AddProfile(new DomainToModelProfile()));
 
             #region DI Service
 
@@ -256,7 +262,7 @@ namespace Api
             app.UseSwagger();
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
             // specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "KPD v1"); });
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api v1"); });
 
             // global cors policy
             app.UseCors(x => x
@@ -264,10 +270,10 @@ namespace Api
                 .AllowAnyMethod()
                 .AllowAnyHeader());
 
-            // if (env.IsDevelopment())
-            // {
-            app.UseDeveloperExceptionPage();
-            // }
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
 
             app.UseAuthentication();
 
@@ -291,12 +297,13 @@ namespace Api
 
         private static void UpdateDatabase(IApplicationBuilder app)
         {
-            using var serviceScope = app.ApplicationServices
-                .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope();
-            using var context = serviceScope.ServiceProvider.GetService<Context>();
-
-            context.Database.Migrate();
+            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetService<Context>())
+                {
+                    context?.Database.Migrate();
+                }
+            }
         }
     }
 }

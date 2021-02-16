@@ -1,4 +1,5 @@
-﻿using Domain.Base;
+﻿using System;
+using Domain.Base;
 
 namespace Domain.Srbac
 {

@@ -115,7 +115,7 @@ namespace Services.Implementations
                     Token = token,
                     UserId = user.Id,
                     AppVersion = requestDto.AppVersion,
-                    CreatorId = user.Id.Value
+                    CreatorId = user.Id
                 }
             );
             return new ResultContainer<UserLoginResponseDto>(

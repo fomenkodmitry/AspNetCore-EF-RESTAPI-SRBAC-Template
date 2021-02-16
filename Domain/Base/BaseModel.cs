@@ -1,12 +1,11 @@
 ﻿using System;
-using Toolbelt.ComponentModel.DataAnnotations.Schema;
+using Domain.Core;
 using Toolbelt.ComponentModel.DataAnnotations.Schema.V5;
 
 namespace Domain.Base
 {
-    public abstract class BaseModel
+    public abstract class BaseModel: IModel
     {
-        public Guid? Id { get; set; }
         public bool? IsActive { get; set; }
    
         [IndexColumn(IsClustered =  false, IsUnique = false)]
@@ -23,5 +22,7 @@ namespace Domain.Base
         
         [IndexColumn(IsClustered =  false, IsUnique = false)]
         public DateTime DateUpdated { get; set; }
+
+        public Guid Id { get; set; }
     }
 }
