@@ -1,15 +1,16 @@
-﻿﻿using System;
+﻿using System;
 using System.Threading.Tasks;
 using Domain.Base;
+using Domain.Core.Result.Struct;
 
- namespace Domain.Authenticate
+namespace Domain.Authenticate
 {
     public interface IAuthenticationService
     {
-        Task<ResultContainer<UserRegistrationResponseDto>> Register(UserRegistrationRequestDto requestDto);
-        Task<ResultContainer<UserLoginResponseDto>> Login(UserLoginRequestDto requestDto);
-        Task<ResultContainer<bool>> Logout(Guid sessionId);
-        Task<ResultContainer<bool>> SavePushToken(Guid sessionId, string pushToken);
+        Task<Result<UserRegistrationResponseDto>> Register(UserRegistrationRequestDto requestDto);
+        Task<Result<UserLoginResponseDto>> Login(UserLoginRequestDto requestDto);
+        Task<Result<bool>> Logout(Guid sessionId);
+        Task<Result<bool>> SavePushToken(Guid sessionId, string pushToken);
 
     }
 }

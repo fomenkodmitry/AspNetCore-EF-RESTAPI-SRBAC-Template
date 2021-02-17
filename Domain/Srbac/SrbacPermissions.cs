@@ -1,4 +1,4 @@
-﻿﻿namespace Domain.Srbac
+﻿namespace Domain.Srbac
 {
     public enum SrbacPermissions
     {

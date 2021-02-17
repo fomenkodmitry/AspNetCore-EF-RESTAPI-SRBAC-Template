@@ -3,7 +3,8 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Domain.Authenticate;
 using Domain.Base;
-using Domain.Error;
+using Domain.Core.Error;
+using Domain.Core.Result.Struct;
 using Domain.Token;
 using Domain.User;
 using Infrastructure.Crypto;
@@ -36,21 +37,19 @@ namespace Services.Implementations
         /// </summary>
         /// <param name="requestDto" class="UserRegistrationResponseDto">UserRegistrationResponseDto</param>
         /// <returns></returns>
-        public async Task<ResultContainer<UserRegistrationResponseDto>> Register(
+        public async Task<Result<UserRegistrationResponseDto>> Register(
             UserRegistrationRequestDto requestDto)
         {
             var userEmailExists = _genericRepository.GetOne<UserModel>(p => p.Email == requestDto.Email);
             if (userEmailExists != null)
             {
-                return new ResultContainer<UserRegistrationResponseDto>(ErrorCodes.UserEmailExists,
-                    nameof(requestDto.Email));
+                return Result<UserRegistrationResponseDto>.FromIError(new ApiError(ErrorCodes.UserEmailExists, nameof(requestDto.Email)));
             }
 
             var userPhoneExists = _genericRepository.GetOne<UserModel>(p => p.Email == requestDto.Phone);
             if (userPhoneExists != null)
             {
-                return new ResultContainer<UserRegistrationResponseDto>(ErrorCodes.UserEmailExists,
-                    nameof(requestDto.Phone));
+                return Result<UserRegistrationResponseDto>.FromIError(new ApiError(ErrorCodes.UserEmailExists, nameof(requestDto.Phone)));
             }
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
@@ -78,7 +77,7 @@ namespace Services.Implementations
             );
             scope.Complete();
 
-            return new ResultContainer<UserRegistrationResponseDto>(
+            return new Result<UserRegistrationResponseDto>(
                 new UserRegistrationResponseDto
                 {
                     Id = res.Id,
@@ -92,17 +91,17 @@ namespace Services.Implementations
         /// </summary>
         /// <param name="requestDto" class="UserLoginResponseDto">UserLoginResponseDto</param>
         /// <returns></returns>
-        public async Task<ResultContainer<UserLoginResponseDto>> Login(UserLoginRequestDto requestDto)
+        public async Task<Result<UserLoginResponseDto>> Login(UserLoginRequestDto requestDto)
         {
             var user = _genericRepository.GetOne<UserModel>(p => p.Email == requestDto.Email);
             if (user == null)
             {
-                return new ResultContainer<UserLoginResponseDto>(ErrorCodes.IncorrectEmailOrPassword);
+                return Result<UserLoginResponseDto>.FromIError(new ApiError(ErrorCodes.IncorrectEmailOrPassword));
             }
 
             if (_cryptoHelper.GetHash(requestDto.Password) != user.Password)
             {
-                return new ResultContainer<UserLoginResponseDto>(ErrorCodes.IncorrectEmailOrPassword);
+                return Result<UserLoginResponseDto>.FromIError(new ApiError(ErrorCodes.IncorrectEmailOrPassword));
             }
 
             var sessionId = Guid.NewGuid();
@@ -118,7 +117,7 @@ namespace Services.Implementations
                     CreatorId = user.Id
                 }
             );
-            return new ResultContainer<UserLoginResponseDto>(
+            return new Result<UserLoginResponseDto>(
                 new UserLoginResponseDto
                 {
                     Id = user.Id,
@@ -132,13 +131,13 @@ namespace Services.Implementations
         /// </summary>
         /// <param name="sessionId">Session Id</param>
         /// <returns></returns>
-        public async Task<ResultContainer<bool>> Logout(Guid sessionId)
+        public async Task<Result<bool>> Logout(Guid sessionId)
         {
             var token = await _genericRepository.GetById<TokenModel>(sessionId);
             if (token == null)
-                return new ResultContainer<bool>(true);
+                return new Result<bool>(true);
             await _genericRepository.Remove(token);
-            return new ResultContainer<bool>(true);
+            return new Result<bool>(true);
         }
 
         /// <summary>
@@ -147,16 +146,16 @@ namespace Services.Implementations
         /// <param name="sessionId"></param>
         /// <param name="pushToken"></param>
         /// <returns></returns>
-        public async Task<ResultContainer<bool>> SavePushToken(Guid sessionId, string pushToken)
+        public async Task<Result<bool>> SavePushToken(Guid sessionId, string pushToken)
         {
             var tokenModel = await _genericRepository.GetById<TokenModel>(sessionId);
             if (tokenModel == null)
-                return new ResultContainer<bool>(false);
+                return new Result<bool>(false);
 
             tokenModel.PushToken = pushToken;
             await _genericRepository.Update(tokenModel);
 
-            return new ResultContainer<bool>(true);
+            return new Result<bool>(true);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿﻿namespace Domain.Filter
+﻿namespace Domain.Filter
 {
     /// <summary>
     /// Параметры пагинации для фильтрации

@@ -1,4 +1,4 @@
-﻿﻿namespace Domain.Code
+﻿namespace Domain.Code
 {
     public enum CodeReason
     {

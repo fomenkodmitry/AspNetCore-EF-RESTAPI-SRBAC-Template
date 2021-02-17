@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Security.Claims;
 using Domain.Authenticate;
-using Domain.Error;
 using Domain.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -48,15 +47,7 @@ namespace Api.Controllers
         {
             requestDto.UserAgent = userAgent;
             requestDto.AppVersion = appVersion;
-            var result = await _authenticationService.Login(requestDto);
-
-            if (result.Error != null)
-            {
-                var error = result.Error ?? ErrorCodes.NotFound;
-                return BadRequest(error, result.ErrorField);
-            }
-
-            return Ok(result.Result);
+            return await ProcessResultAsync(() =>_authenticationService.Login(requestDto));
         }
 
         /// <summary>
@@ -77,15 +68,10 @@ namespace Api.Controllers
         {
             requestDto.UserAgent = userAgent;
             requestDto.AppVersion = appVersion;
-            var result = await _authenticationService.Register(requestDto);
-
-            if (result.Error != null)
-                return BadRequest(result.Error.Value, result.ErrorField);
-            
-            return Ok(result.Result);
+            return await ProcessResultAsync(() => _authenticationService.Register(requestDto));
         }
-        
-        
+
+
         /// <summary>
         /// Save push token
         /// </summary>
@@ -99,7 +85,7 @@ namespace Api.Controllers
 
             return Ok();
         }
-        
+
         /// <summary>
         /// Logout
         /// </summary>
@@ -111,6 +97,5 @@ namespace Api.Controllers
                 await _authenticationService.Logout(sessionId);
             return Ok();
         }
-        
     }
 }

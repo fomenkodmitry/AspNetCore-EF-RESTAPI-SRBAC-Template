@@ -1,4 +1,4 @@
-﻿namespace Domain.Error
+﻿namespace Domain.Core.Error
 {
     public enum ErrorCodes
     {

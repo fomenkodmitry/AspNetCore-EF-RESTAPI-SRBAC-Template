@@ -1,5 +1,5 @@
-﻿﻿using System;
-using Domain.Base;
+﻿using System;
+using Domain.Authenticate.Base;
 
 namespace Domain.Authenticate
 {

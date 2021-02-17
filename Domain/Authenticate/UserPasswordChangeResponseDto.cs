@@ -1,4 +1,4 @@
-﻿﻿namespace Domain.Authenticate
+﻿namespace Domain.Authenticate
 {
     public class UserPasswordChangeResponseDto
     {

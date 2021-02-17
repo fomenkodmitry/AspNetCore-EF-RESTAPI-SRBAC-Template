@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Domain.Error;
+using Domain.Core.Error;
 
-namespace Domain.Base
+namespace Domain.Authenticate.Base
 {
     public class BaseResponseDto
     {

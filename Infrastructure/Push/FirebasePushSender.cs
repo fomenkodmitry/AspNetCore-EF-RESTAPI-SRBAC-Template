@@ -1,4 +1,4 @@
-﻿﻿using Domain.Push;
+﻿using Domain.Push;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;

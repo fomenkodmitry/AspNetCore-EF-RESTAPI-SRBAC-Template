@@ -1,9 +1,10 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Domain.Base;
+using Domain.Core.Result.Struct;
 using Domain.Srbac;
 
 namespace Domain.FileStorage
@@ -20,7 +21,7 @@ namespace Domain.FileStorage
         );
 
         Task<string> GetFileUrl(Guid entityId, FilesTypes filesType);
-        Task<ResultContainer<FileStorageDto>> GetFileById(Guid fileId);
+        Task<FileStorageDto> GetFileById(Guid fileId);
         IEnumerable<string> GetFileUrls(Guid entityId, FilesTypes filesType);
 
     }

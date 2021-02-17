@@ -1,4 +1,4 @@
-﻿﻿namespace Domain.Push
+﻿namespace Domain.Push
 {
     public enum PushTypes
     {

@@ -1,4 +1,4 @@
-﻿﻿namespace Infrastructure.Email
+﻿namespace Infrastructure.Email
 {
     public class EmailConfiguration
     {

@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -27,7 +27,6 @@ namespace Services.Implementations
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
-
             return tokenString;
         }
     }

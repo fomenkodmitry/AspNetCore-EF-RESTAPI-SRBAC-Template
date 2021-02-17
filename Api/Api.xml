@@ -55,7 +55,6 @@
             <typeparam name="TViewModel"></typeparam>
             <typeparam name="TCreateModel"></typeparam>
             <typeparam name="TUpdateModel"></typeparam>
-            <typeparam name="TKey"></typeparam>
         </member>
         <member name="M:Api.Controllers.Base.BaseApiController`4.#ctor(Domain.User.IUserService)">
             <summary>
@@ -97,26 +96,18 @@
             <param name="id">Id entity</param>
             <returns>Model deleted entity</returns>
         </member>
-        <member name="M:Api.Controllers.Base.BaseApiController`4.BadRequest(Domain.Error.ErrorCodes,System.String[])">
-            <summary>
-            Response for bad request
-            </summary>
-            <param name="code">Error code</param>
-            <param name="property">Field(optional)</param>
-            <returns>BadRequest, text error</returns>
-        </member>
-        <member name="M:Api.Controllers.Base.BaseApiController`4.ProcessResult(Domain.Base.ResultContainer{`0})">
+        <member name="M:Api.Controllers.Base.BaseController.ProcessResultAsync``1(System.Func{System.Threading.Tasks.Task{Domain.Core.Result.Struct.Result{``0}}})">
             <summary>
             Response
             </summary>
-            <param name="result">Result</param>
+            <param name="func"></param>
             <returns>Container With result</returns>
         </member>
-        <member name="M:Api.Controllers.Base.BaseApiController`4.ProcessResult``1(Domain.Base.ResultContainer{``0})">
+        <member name="M:Api.Controllers.Base.BaseController.ProcessResult``1(System.Func{Domain.Core.Result.Struct.Result{``0}})">
             <summary>
             Response
             </summary>
-            <param name="result">Result</param>
+            <param name="func"></param>
             <returns>Container With result</returns>
         </member>
         <member name="T:Api.Controllers.UserController">

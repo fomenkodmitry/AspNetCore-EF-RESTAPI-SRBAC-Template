@@ -1,4 +1,4 @@
-﻿﻿namespace Infrastructure.SMS
+﻿namespace Infrastructure.SMS
 {
     public class SmsConfiguration
     {

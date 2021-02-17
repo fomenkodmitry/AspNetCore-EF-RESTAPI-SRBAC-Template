@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain.Audit;
 using Domain.Base;
+using Domain.Core.Result.Struct;
 using Domain.Srbac;
 using Infrastructure.Repositories;
 using Newtonsoft.Json;
@@ -18,7 +19,7 @@ namespace Services.Implementations
             _genericRepository = genericRepository;
         }
 
-        public async Task<ResultContainer<AuditModel>> Success(
+        public async Task<Result<AuditModel>> Success(
             AuditOperationTypes operationType,
             string message,
             object auditObject,
@@ -47,10 +48,10 @@ namespace Services.Implementations
                     CreatorId =  creatorId
                 }
             );
-            return new ResultContainer<AuditModel>(res);
+            return new Result<AuditModel>(res);
         }
 
-        public async Task<ResultContainer<AuditModel>> Error(
+        public async Task<Result<AuditModel>> Error(
             AuditOperationTypes operationType,
             string message,
             AuditErrorObjectContainer auditObject,
@@ -79,10 +80,10 @@ namespace Services.Implementations
                     CreatorId = creatorId
                 }
             );
-            return new ResultContainer<AuditModel>(res);
+            return new Result<AuditModel>(res);
         }
 
-        public async Task<ResultContainer<AuditModel>> Cancel(
+        public async Task<Result<AuditModel>> Cancel(
             AuditOperationTypes operationType,
             string message,
             object auditObject,
@@ -111,13 +112,13 @@ namespace Services.Implementations
                     CreatorId = creatorId
                 }
             );
-            return new ResultContainer<AuditModel>(res);
+            return new Result<AuditModel>(res);
         }
 
-        public ResultContainer<IEnumerable<AuditModel>> GetAuditRecordByObjectId(Guid? id)
+        public Result<IEnumerable<AuditModel>> GetAuditRecordByObjectId(Guid? id)
         {
             var res =  _genericRepository.Get<AuditModel>(p => p.ObjectId == id);
-            return new ResultContainer<IEnumerable<AuditModel>>(res);
+            return new Result<IEnumerable<AuditModel>>(res);
         }
     }
 }

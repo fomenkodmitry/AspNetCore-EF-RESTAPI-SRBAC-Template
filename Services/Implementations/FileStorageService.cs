@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Domain.Audit;
 using Domain.Base;
+using Domain.Core.Error;
+using Domain.Core.Result.Struct;
 using Domain.FileStorage;
 using Domain.Srbac;
 using Infrastructure.FileStorage;
@@ -130,12 +132,12 @@ namespace Services.Implementations
             throw new NotImplementedException();
         }
 
-        public async Task<ResultContainer<FileStorageDto>> GetFileById(Guid fileId)
+        public async Task<FileStorageDto> GetFileById(Guid fileId)
         {
             var res = await _genericRepository.GetById<FileModel>(fileId);
 
             if (res == null)
-                return new ResultContainer<FileStorageDto>(null);
+                return default;
 
             var path = Path.Combine(
                 _fileStorageConfiguration.AbsolutePath,
@@ -145,15 +147,14 @@ namespace Services.Implementations
             );
 
             if (!File.Exists(path))
-                return new ResultContainer<FileStorageDto>(null);
+                return default;
 
-            return new ResultContainer<FileStorageDto>(
+            return
                 new FileStorageDto()
                 {
                     ContentType = MimeTypes.GetMimeType(path),
                     Content = await File.ReadAllBytesAsync(path)
-                }
-            );
+                };
         }
     }
 }

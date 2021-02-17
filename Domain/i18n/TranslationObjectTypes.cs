@@ -1,4 +1,4 @@
-﻿﻿namespace Domain.i18n
+﻿namespace Domain.i18n
 {
     public enum TranslationObjectTypes
     {

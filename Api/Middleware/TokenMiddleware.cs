@@ -27,9 +27,8 @@ namespace Api.Middleware
             }
             var hasTokenIsActive = tokenRepository.GetOne<TokenModel>(
                 p => 
-                    p.UserId == Guid.Parse(context.User.FindFirstValue(ClaimTypes.Sid))
-                     && p.Role == Enum.Parse<SrbacRoles>(context.User.FindFirstValue(ClaimTypes.Role))
-                     && p.Id == Guid.Parse(context.User.FindFirstValue(ClaimTypes.Name))
+                    p.UserId == Guid.Parse(context.User.FindFirstValue(ClaimTypes.Name))
+                     && p.Id == Guid.Parse(context.User.FindFirstValue(ClaimTypes.Sid))
                      && p.IsActive == true
             ) != null;
             

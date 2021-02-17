@@ -1,6 +1,4 @@
-﻿using System;
-using Api.Controllers.Base;
-using AutoMapper;
+﻿using Api.Controllers.Base;
 using Domain.Filter;
 using Domain.User;
 using Microsoft.AspNetCore.Authorization;

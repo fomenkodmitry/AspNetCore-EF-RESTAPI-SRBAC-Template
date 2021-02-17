@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain.Base;
+using Domain.Core.Result.Struct;
 using Domain.Srbac;
 
 namespace Domain.Audit
 {
     public interface IAuditService
     {
-        Task<ResultContainer<AuditModel>> Success(
+        Task<Result<AuditModel>> Success(
             AuditOperationTypes operationType,
             string message,
             object auditObject,
@@ -17,7 +18,7 @@ namespace Domain.Audit
             SrbacRoles role
         );
 
-        Task<ResultContainer<AuditModel>> Error(
+        Task<Result<AuditModel>> Error(
             AuditOperationTypes operationType,
             string message,
             AuditErrorObjectContainer auditObject,
@@ -26,7 +27,7 @@ namespace Domain.Audit
             SrbacRoles role
         );
 
-        Task<ResultContainer<AuditModel>> Cancel(
+        Task<Result<AuditModel>> Cancel(
             AuditOperationTypes operationType,
             string message,
             object auditObject,
@@ -35,6 +36,6 @@ namespace Domain.Audit
             SrbacRoles role
         );
 
-        ResultContainer<IEnumerable<AuditModel>> GetAuditRecordByObjectId(Guid? id);
+        Result<IEnumerable<AuditModel>> GetAuditRecordByObjectId(Guid? id);
     }
 }
