@@ -9,3 +9,5 @@ Includes:
   * Email sender
   * Sheduler (implement сrontab) Ncrontab
   * Generic REST controller
+  * Automapper
+  * Autofac
