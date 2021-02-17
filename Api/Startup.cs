@@ -45,6 +45,7 @@ namespace Api
 
         private static readonly string AppSettings =
             string.IsNullOrEmpty(Env) ? "appsettings.json" : $"appsettings.{Env}.json";
+
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration)
@@ -129,7 +130,9 @@ namespace Api
         {
             var dbContextOptionsBuilder =
                 new DbContextOptionsBuilder<Context>().UseNpgsql(
-                    Configuration.GetConnectionString("DefaultConnection"));
+                    Configuration.GetConnectionString("DefaultConnection"),
+                    x => x.MigrationsAssembly("DBMigrations")
+                );
             builder
                 .RegisterType<Context>()
                 .WithParameter("options", dbContextOptionsBuilder.Options)
@@ -202,12 +205,13 @@ namespace Api
 
             builder.RegisterType<GenericRepository>().As<IGenericRepository>();
             builder.RegisterType<SqlRepository>();
+
             #endregion
-            
+
             #region DI Infrastructure
-            
+
             builder.RegisterType<TemplateContainer>().SingleInstance();
-            
+
             builder
                 .RegisterInstance(Configuration
                     .GetSection(nameof(EmailConfiguration))
@@ -215,18 +219,18 @@ namespace Api
                 )
                 .As<EmailConfiguration>()
                 .SingleInstance();
-            
+
             builder.RegisterType<EmailSender>().As<IEmailSender>();
 
             var smsConfig = Configuration
                 .GetSection(nameof(SmsConfiguration))
                 .Get<SmsConfiguration>();
-            
+
             builder
                 .RegisterInstance(smsConfig)
                 .As<SmsConfiguration>()
                 .SingleInstance();
-            
+
             if (smsConfig.IsStub)
                 builder.RegisterType<StubSMSSender>().As<ISMSSender>();
 
@@ -245,8 +249,9 @@ namespace Api
                     .Get<CodeConfiguration>())
                 .As<CodeConfiguration>()
                 .SingleInstance();
-            
+
             builder.RegisterType<InitializeInfrastructure>();
+
             #endregion
         }
 
