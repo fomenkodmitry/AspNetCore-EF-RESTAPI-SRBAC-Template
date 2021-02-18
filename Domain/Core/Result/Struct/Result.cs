@@ -3,11 +3,23 @@ using Domain.Core.Error;
 
 namespace Domain.Core.Result.Struct
 {
+    /// <summary>
+    /// Generic Result Container
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public readonly struct Result<T>
     {
+        /// <summary>
+        /// Result
+        /// </summary>
         public T Some { get; }
+        /// <summary>
+        /// Error
+        /// </summary>
         public IError Error { get; }
-        
+        /// <summary>
+        /// Operation is success
+        /// </summary>
         public bool IsSuccess => Error is null;
 
         public Result(T some)
@@ -16,7 +28,7 @@ namespace Domain.Core.Result.Struct
             {
                 Some = default;
                 //ToDo
-                Error = new ExceptionError(new NullReferenceException("Null exception"));
+                Error = new ExceptionError(new NullReferenceException($"Null {nameof(some)} exception"));
             }
 
             Some = some;

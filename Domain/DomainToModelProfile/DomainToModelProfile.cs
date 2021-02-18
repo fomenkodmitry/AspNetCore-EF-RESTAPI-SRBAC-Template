@@ -2,6 +2,9 @@
 
 namespace Domain.DomainToModelProfile
 {
+    /// <summary>
+    /// Mapper profile
+    /// </summary>
     public class DomainToModelProfile : Profile
     {
         public DomainToModelProfile()

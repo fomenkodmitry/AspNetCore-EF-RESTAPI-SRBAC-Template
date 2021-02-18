@@ -73,7 +73,7 @@ namespace Api.Controllers
 
 
         /// <summary>
-        /// Save push token
+        /// Save firebase push token
         /// </summary>
         /// <param name="model"></param>
         /// <returns>200 OK</returns>
