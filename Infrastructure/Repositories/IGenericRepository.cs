@@ -8,7 +8,7 @@ namespace Infrastructure.Repositories
 {
     public interface IGenericRepository
     {
-        IQueryable Get<TEntity>() where TEntity : BaseModel;
+        IQueryable<TEntity> Get<TEntity>() where TEntity : BaseModel;
         IQueryable<TEntity> Get<TEntity>(Func<TEntity, bool> predicate) where TEntity : BaseModel;
         Task<TEntity> GetById<TEntity>(Guid id) where TEntity : BaseModel;
 

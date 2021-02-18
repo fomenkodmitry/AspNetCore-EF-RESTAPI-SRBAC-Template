@@ -17,7 +17,7 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public IQueryable Get<TEntity>() where TEntity : BaseModel
+        public IQueryable<TEntity> Get<TEntity>() where TEntity : BaseModel
         {
             return _context.Set<TEntity>().AsNoTracking();
         }
