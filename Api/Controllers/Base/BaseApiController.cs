@@ -54,7 +54,7 @@ namespace Api.Controllers.Base
         /// <param name="model">Description new entity</param>
         /// <returns>Model created entity</returns>
         [HttpPost]
-        public virtual async Task<ActionResult<TViewModel>> Post([FromBody] TViewModel model)
+        public virtual async Task<ActionResult<TViewModel>> Post([FromBody] TCreateModel model)
             => BadRequest(ErrorCodes.WrongOperation);
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Api.Controllers.Base
         /// <param name="model">Model with edit fields</param>
         /// <returns>Model edited entity</returns>
         [HttpPut]
-        public virtual async Task<ActionResult<TViewModel>> Put([FromBody] TViewModel model)
+        public virtual async Task<ActionResult<TViewModel>> Put([FromBody] TUpdateModel model)
             => BadRequest(ErrorCodes.WrongOperation);
 
         /// <summary>
