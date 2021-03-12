@@ -23,18 +23,11 @@ namespace Infrastructure
 
         public InitializeInfrastructure FileStorage()
         {
-            if (!Directory.Exists(_fileStorageConfiguration.AbsolutePath))
-            {
-                Directory.CreateDirectory(_fileStorageConfiguration.AbsolutePath);
-            }
+            Directory.CreateDirectory(_fileStorageConfiguration.AbsolutePath);
 
             foreach (var value in Enum.GetValues(typeof(FilesTypes)))
             {
                 var path = Path.Combine(_fileStorageConfiguration.AbsolutePath, value.ToString());
-
-                if (Directory.Exists(path))
-                    continue;
-
                 Directory.CreateDirectory(path);
             }
 
