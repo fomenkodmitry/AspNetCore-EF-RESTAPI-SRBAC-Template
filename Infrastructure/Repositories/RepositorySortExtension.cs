@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories
 {
     public static class RepositorySortExtension
     {
-        public static IQueryable<TEntity> ApplySort<TEntity>(this IQueryable<TEntity> source, ref FilterSortDto sort) where TEntity : BaseModel
+        public static IQueryable<TEntity> ApplySort<TEntity>(this IQueryable<TEntity> source, FilterSortDto sort) where TEntity : BaseModel
         {
             sort ??= new FilterSortDto
             {
