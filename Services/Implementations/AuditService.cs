@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain.Audit;
-using Domain.Base;
 using Domain.Core.Result.Struct;
 using Domain.Srbac;
-using Infrastructure.Repositories;
+using Infrastructure.Repositories.Generic;
 using Newtonsoft.Json;
 
 namespace Services.Implementations

@@ -8,7 +8,7 @@ using Domain.Core.Result.Struct;
 using Domain.Token;
 using Domain.User;
 using Infrastructure.Crypto;
-using Infrastructure.Repositories;
+using Infrastructure.Repositories.Generic;
 using Microsoft.Extensions.Configuration;
 
 namespace Services.Implementations

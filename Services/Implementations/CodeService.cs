@@ -3,7 +3,7 @@ using PasswordGenerator;
 using System;
 using System.Threading.Tasks;
 using Infrastructure.Code;
-using Infrastructure.Repositories;
+using Infrastructure.Repositories.Generic;
 
 namespace Services.Implementations
 {

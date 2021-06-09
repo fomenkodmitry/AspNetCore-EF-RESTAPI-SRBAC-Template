@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Domain.Srbac;
 using Domain.Token;
-using Infrastructure.Repositories;
+using Infrastructure.Repositories.Generic;
 
 namespace Api.Middleware
 {

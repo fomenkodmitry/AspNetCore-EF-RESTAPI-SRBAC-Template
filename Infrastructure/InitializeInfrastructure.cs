@@ -6,7 +6,7 @@ using System.Linq;
 using Domain.FileStorage;
 using Domain.Srbac;
 using Infrastructure.FileStorage;
-using Infrastructure.Repositories;
+using Infrastructure.Repositories.Generic;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 

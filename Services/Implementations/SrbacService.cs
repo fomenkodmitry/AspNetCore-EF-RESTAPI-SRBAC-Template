@@ -1,5 +1,5 @@
 ﻿using Domain.Srbac;
-using Infrastructure.Repositories;
+using Infrastructure.Repositories.Generic;
 
 namespace Services.Implementations
 {

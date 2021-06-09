@@ -10,7 +10,7 @@ using Domain.Core.Result.Struct;
 using Domain.FileStorage;
 using Domain.Srbac;
 using Infrastructure.FileStorage;
-using Infrastructure.Repositories;
+using Infrastructure.Repositories.Generic;
 using MimeKit;
 
 namespace Services.Implementations

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Domain.User;
-using Infrastructure.Repositories;
+using Infrastructure.Repositories.Generic;
 
 namespace Services.Implementations
 {

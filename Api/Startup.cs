@@ -15,7 +15,7 @@ using Infrastructure.Crypto;
 using Infrastructure.Email;
 using Infrastructure.FileStorage;
 using Infrastructure.Host;
-using Infrastructure.Repositories;
+using Infrastructure.Repositories.Generic;
 using Infrastructure.SMS;
 using Infrastructure.Template;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -36,6 +36,7 @@ using System.Text.Json.Serialization;
 using Autofac;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
 using Domain.DomainToModelProfile;
+using Infrastructure.Repositories;
 
 namespace Api
 {

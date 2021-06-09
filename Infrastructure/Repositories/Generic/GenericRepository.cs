@@ -6,7 +6,7 @@ using Domain.Base;
 using Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repositories
+namespace Infrastructure.Repositories.Generic
 {
     public class GenericRepository : IGenericRepository
     {

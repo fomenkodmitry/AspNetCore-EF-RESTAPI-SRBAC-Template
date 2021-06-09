@@ -2,7 +2,7 @@
 using Domain.Base;
 using Domain.Filter;
 
-namespace Infrastructure.Repositories
+namespace Infrastructure.Repositories.Generic
 {
     public static class RepositorySortExtension
     {

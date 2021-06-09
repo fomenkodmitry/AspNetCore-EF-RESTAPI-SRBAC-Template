@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Domain.Base;
 
-namespace Infrastructure.Repositories
+namespace Infrastructure.Repositories.Generic
 {
     public interface IGenericRepository
     {
