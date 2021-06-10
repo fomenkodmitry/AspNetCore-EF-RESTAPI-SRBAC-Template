@@ -40,22 +40,20 @@ namespace Infrastructure.Repositories
             return data;
         }
 
-        public async Task<TModel> Edit(TModel data)
+        public async Task Edit(TModel data)
         {
             data.DateUpdated = DateTime.UtcNow;
             Context.Update(data);
             await Context.SaveChangesAsync();
-            return data;
         }
 
-        public async Task<TModel> Delete(TModel data)
+        public async Task Delete(TModel data)
         {
             data.IsDelete = true;
             data.DateDelete = DateTime.Now;
             data.DateUpdated = DateTime.UtcNow;
             Context.Update(data);
             await Context.SaveChangesAsync();
-            return data;
         }
 
         protected virtual IQueryable<TModel> ApplyPaging(IQueryable<TModel> source, FilterPagingDto paging)
@@ -74,7 +72,7 @@ namespace Infrastructure.Repositories
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        public virtual IEnumerable<TModel> GetFiltered(TFilter filter)
+        public virtual async Task<ICollection<TModel>> GetFiltered(TFilter filter)
         {
             var result = GetDataSet();
 
@@ -83,7 +81,7 @@ namespace Infrastructure.Repositories
             result = ApplySort(result, filter.Sort);
             result = ApplyPaging(result, filter.Paging);
 
-            return result;
+            return await result.ToListAsync();
         }
 
         protected virtual IQueryable<TModel> ApplySort(IQueryable<TModel> source, FilterSortDto sort)
