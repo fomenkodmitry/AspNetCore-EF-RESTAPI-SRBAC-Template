@@ -34,13 +34,6 @@
             <param name="appVersion">Header - X-Application-Version</param>
             <returns class = "UserRegistrationResponseDto">UserRegistrationResponseDto</returns>
         </member>
-        <member name="M:Api.Controllers.AuthController.SavePushToken(Domain.Authenticate.SavePushTokenDto)">
-            <summary>
-            Save firebase push token
-            </summary>
-            <param name="model"></param>
-            <returns>200 OK</returns>
-        </member>
         <member name="M:Api.Controllers.AuthController.Logout">
             <summary>
             Logout
@@ -95,20 +88,6 @@
             </summary>
             <param name="id">Id entity</param>
             <returns>Model deleted entity</returns>
-        </member>
-        <member name="M:Api.Controllers.Base.BaseController.ProcessResultAsync``1(System.Func{System.Threading.Tasks.Task{Domain.Core.Result.Struct.Result{``0}}})">
-            <summary>
-            Response
-            </summary>
-            <param name="func"></param>
-            <returns>Container With result</returns>
-        </member>
-        <member name="M:Api.Controllers.Base.BaseController.ProcessResult``1(System.Func{Domain.Core.Result.Struct.Result{``0}})">
-            <summary>
-            Response
-            </summary>
-            <param name="func"></param>
-            <returns>Container With result</returns>
         </member>
         <member name="T:Api.Controllers.UserController">
             <summary>

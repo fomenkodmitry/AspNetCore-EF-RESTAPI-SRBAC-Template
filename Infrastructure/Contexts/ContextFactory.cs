@@ -11,8 +11,7 @@ namespace Infrastructure.Contexts
     {
         private static readonly string Env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
-        private static readonly string AppSettings =
-            string.IsNullOrEmpty(Env) ? "appsettings.json" : $"appsettings.{Env}.json";
+        private static readonly string AppSettings = "appsettings.json";
 
         public Context CreateDbContext(string[] args)
         {
@@ -20,8 +19,7 @@ namespace Infrastructure.Contexts
 
             IConfiguration config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory() + "/../Api")
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile(AppSettings, optional: true)
+                .AddJsonFile(AppSettings, optional: false, reloadOnChange: true)
                 .Build();
 
             optionsBuilder.UseNpgsql(

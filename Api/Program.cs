@@ -10,7 +10,7 @@ namespace Api
     public class Program
     {
         private static readonly string Env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-        private static readonly string LogFilePath = string.IsNullOrEmpty(Env) ? "nlog.config" : $"nlog.{Env}.config";
+        private static readonly string LogFilePath = "nlog.config";
 
         public static void Main(string[] args)
         {

@@ -52,6 +52,11 @@ namespace Middleware
         throw new ArgumentNullException(nameof (app));
       return options != null ? app.UseMiddleware<CorrelationIdMiddleware>((object) Microsoft.Extensions.Options.Options.Create<CorrelationIdOptions>(options)) : throw new ArgumentNullException(nameof (options));
     }
-
+    
+    public static IApplicationBuilder UseContextContainer(
+      this IApplicationBuilder app)
+    {
+      return app != null ? app.UseMiddleware<ContextContainerMiddleware>() : throw new ArgumentNullException(nameof (app));
+    }
   }
 }

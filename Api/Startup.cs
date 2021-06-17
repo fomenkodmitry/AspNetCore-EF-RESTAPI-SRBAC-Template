@@ -27,9 +27,11 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Autofac;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
+using Domain.Code;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.Token;
 using Infrastructure.Repositories.User;
+using Middleware;
 
 namespace Api
 {
@@ -37,8 +39,7 @@ namespace Api
     {
         private static readonly string Env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
-        private static readonly string AppSettings =
-            string.IsNullOrEmpty(Env) ? "appsettings.json" : $"appsettings.{Env}.json";
+        private static readonly string AppSettings = "appsettings.json";
 
         public IConfiguration Configuration { get; }
 
@@ -52,7 +53,6 @@ namespace Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            services.AddMvc(p => p.EnableEndpointRouting = false);
 
             var key = Encoding.ASCII.GetBytes(Configuration["AppSettings:Secret"]);
             services.AddAuthentication(x =>
@@ -117,7 +117,10 @@ namespace Api
 
             services
                 .AddControllers()
-                .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+                .AddNewtonsoftJson()
+                .AddNewtonsoftJson(
+                    options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                );
         }
 
         public void ConfigureContainer(ContainerBuilder builder)
@@ -147,11 +150,10 @@ namespace Api
             builder.RegisterType<AuthenticationService>().As<IAuthenticationService>();
             builder.RegisterType<TokenService>().As<ITokenService>();
             builder.RegisterType<UserService>().As<IUserService>();
+            builder.RegisterType<CodeService>().As<ICodeService>();
 
             builder.RegisterType<CryptoHelper>().SingleInstance();
             builder.RegisterType<ScheduleTask>().As<IHostedService>().SingleInstance();
-            // ToDo: Edit config and activate this
-            // builder.RegisterType<NotificationService>().As<IPushService>();
 
             builder
                 .Register(p => Configuration
@@ -174,7 +176,7 @@ namespace Api
             #region DI Repository
 
             builder.RegisterType<UserRepository>().As<IUserRepository>();
-            builder.RegisterType<TokenRepository>().As<IUserRepository>();
+            builder.RegisterType<TokenRepository>().As<ITokenRepository>();
             builder.RegisterType<SqlRepository>();
 
             #endregion
@@ -217,35 +219,36 @@ namespace Api
             InitializeInfrastructure infrastructure
         )
         {
+            
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api v1"); });
 
-            // global cors policy
-            app.UseCors(x => x
-                .AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader());
-
             if (env.IsDevelopment())
-            {
                 app.UseDeveloperExceptionPage();
-            }
+
+            // app.UseVersionMiddleware();
+            // app.UseCorrelationId();
+            // app.UseContextContainer();
+            
+            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().Build());
 
             app.UseAuthentication();
-            app.UseMvc();
-            app.UseHttpsRedirection();
+
+            // app.UseLocalization();
+            // app.UseRequestResponseLogging();
+            // app.UseTraceRequestLogging();
             app.UseRouting();
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-
+            app.UseAuthorization();
+            app.UseEndpoints(opt =>
+            {
+                opt.MapControllers();
+            });
+            
             UpdateDatabase(app);
-
             infrastructure.FileStorage();
-
-            var logger = loggerFactory.CreateLogger("LoggerInStartup");
-            logger.LogInformation($"\n\n{DateTime.Now} | Startup logger was launched");
         }
 
         private static void UpdateDatabase(IApplicationBuilder app)
