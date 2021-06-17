@@ -24,20 +24,15 @@ namespace Infrastructure.Repositories
         }
 
         public virtual async Task<TModel> GetById(Guid guid)
-        {
-            var data = GetDataSet().FirstOrDefaultAsync(u => u.Id == guid && u.IsDelete == false);
-            return await data;
-        }
+            => await GetDataSet().FirstOrDefaultAsync(u => u.Id == guid && u.IsDelete == false);
 
-        public async Task<TModel> Create(TModel data, Guid? creatorId = null)
+        public async Task Create(TModel data)
         {
-            data.CreatorId = creatorId;
             data.DateCreated = DateTime.UtcNow;
             data.IsActive ??= true;
             data.DateUpdated = DateTime.UtcNow;
             await Context.Set<TModel>().AddAsync(data);
             await Context.SaveChangesAsync();
-            return data;
         }
 
         public async Task Edit(TModel data)

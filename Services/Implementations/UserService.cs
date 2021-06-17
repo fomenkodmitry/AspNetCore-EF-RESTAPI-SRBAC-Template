@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Domain.User;
-using Infrastructure.Repositories.Generic;
+using Infrastructure.Repositories.User;
 
 namespace Services.Implementations
 {
     public class UserService : IUserService
     {
-        private readonly IGenericRepository _genericRepository;
+        private readonly IUserRepository _userRepository;
 
-        public UserService(IGenericRepository genericRepository)
+        public UserService(UserRepository userRepository)
         {
-            _genericRepository = genericRepository;
+            _userRepository = userRepository;
         }
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace Services.Implementations
         /// <returns></returns>
         public async Task<UserModel> GetById(Guid guid)
         {
-            var res = await _genericRepository.GetById<UserModel>(guid);
+            var res = await _userRepository.GetById(guid);
             return res;
         }
     }

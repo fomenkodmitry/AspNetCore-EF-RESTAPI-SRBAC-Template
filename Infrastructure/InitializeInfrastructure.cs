@@ -1,14 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using Domain.FileStorage;
-using Domain.Srbac;
 using Infrastructure.FileStorage;
-using Infrastructure.Repositories.Generic;
-using Microsoft.EntityFrameworkCore.Internal;
-using Newtonsoft.Json;
 
 namespace Infrastructure
 {

@@ -11,7 +11,7 @@ namespace Api.Controllers.Base
 {
     public class BaseController : Controller
     {
-        
+
         public BaseController(IUserService userService)
         {
             UserService = userService;
@@ -20,7 +20,7 @@ namespace Api.Controllers.Base
         #region Protected
 
         protected IUserService UserService { get; }
-        
+
         private UserModel _currentUser;
 
         protected UserModel CurrentUser
@@ -39,48 +39,5 @@ namespace Api.Controllers.Base
         protected SrbacRoles CurrentRole => Enum.Parse<SrbacRoles>(User.FindFirstValue(ClaimTypes.Role));
 
         #endregion
-        
-        /// <summary>
-        /// Response
-        /// </summary>
-        /// <param name="func"></param>
-        /// <returns>Container With result</returns>
-        protected async Task<ActionResult<T>> ProcessResultAsync<T>(Func<Task<Result<T>>> func)
-        {
-            try
-            {
-                var res = await func();
-                if(res.IsSuccess)
-                    return Ok(res.Some);
-
-                return BadRequest(res.Error);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(Result<T>.FromIError(new ExceptionError(e)));
-            }
-        }
-        
-        /// <summary>
-        /// Response
-        /// </summary>
-        /// <param name="func"></param>
-        /// <returns>Container With result</returns>
-        protected ActionResult<T> ProcessResult<T>(Func<Result<T>> func)
-        {
-            try
-            {
-                var res = func();
-                if(res.IsSuccess)
-                    return Ok(res.Some);
-
-                return BadRequest(res.Error);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(Result<T>.FromIError(new ExceptionError(e)));
-            }
-        }
-        
     }
 }

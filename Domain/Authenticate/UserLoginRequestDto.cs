@@ -17,6 +17,7 @@ namespace Domain.Authenticate
         /// <summary>
         /// Http User Agent
         /// </summary>
+        [FromHeader(Name = "User-Agent")]
         public string UserAgent { get; set; }
         /// <summary>
         /// Application Version

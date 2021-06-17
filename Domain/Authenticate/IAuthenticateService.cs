@@ -10,7 +10,6 @@ namespace Domain.Authenticate
         Task<Result<UserRegistrationResponseDto>> Register(UserRegistrationRequestDto requestDto);
         Task<Result<UserLoginResponseDto>> Login(UserLoginRequestDto requestDto);
         Task<Result<bool>> Logout(Guid sessionId);
-        Task<Result<bool>> SavePushToken(Guid sessionId, string pushToken);
 
     }
 }

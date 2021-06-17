@@ -47,7 +47,7 @@ namespace Api.Controllers
         {
             requestDto.UserAgent = userAgent;
             requestDto.AppVersion = appVersion;
-            return await ProcessResultAsync(() =>_authenticationService.Login(requestDto));
+            return Ok(_authenticationService.Login(requestDto));
         }
 
         /// <summary>
@@ -68,22 +68,7 @@ namespace Api.Controllers
         {
             requestDto.UserAgent = userAgent;
             requestDto.AppVersion = appVersion;
-            return await ProcessResultAsync(() => _authenticationService.Register(requestDto));
-        }
-
-
-        /// <summary>
-        /// Save firebase push token
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns>200 OK</returns>
-        [HttpPut("[action]")]
-        public async Task<ActionResult> SavePushToken(SavePushTokenDto model)
-        {
-            if (Guid.TryParse(User.FindFirstValue(ClaimTypes.Sid), out var sessionId))
-                await _authenticationService.SavePushToken(sessionId, model.PushToken);
-
-            return Ok();
+            return Ok(_authenticationService.Register(requestDto));
         }
 
         /// <summary>

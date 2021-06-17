@@ -2,21 +2,22 @@
 using System.Threading.Tasks;
 using System.Transactions;
 using Domain.Authenticate;
-using Domain.Base;
 using Domain.Core.Error;
 using Domain.Core.Result.Struct;
 using Domain.Token;
 using Domain.User;
 using Infrastructure.Crypto;
-using Infrastructure.Repositories.Generic;
+using Infrastructure.Repositories.Token;
+using Infrastructure.Repositories.User;
 using Microsoft.Extensions.Configuration;
 
 namespace Services.Implementations
 {
     public class AuthenticationService : IAuthenticationService
     {
-        private readonly IGenericRepository _genericRepository;
+        private readonly IUserRepository _userRepository;
         private readonly CryptoHelper _cryptoHelper;
+        private readonly ITokenRepository _tokenRepository;
         private readonly ITokenService _tokenService;
         private readonly string _secretKey;
 
@@ -24,11 +25,13 @@ namespace Services.Implementations
             IConfiguration configuration,
             CryptoHelper cryptoHelper,
             ITokenService tokenService,
-            IGenericRepository genericRepository)
+            IUserRepository userRepository, 
+            ITokenRepository tokenRepository)
         {
             _cryptoHelper = cryptoHelper;
             _tokenService = tokenService;
-            _genericRepository = genericRepository;
+            _userRepository = userRepository;
+            _tokenRepository = tokenRepository;
             _secretKey = configuration["AppSettings:Secret"];
         }
 
@@ -40,20 +43,20 @@ namespace Services.Implementations
         public async Task<Result<UserRegistrationResponseDto>> Register(
             UserRegistrationRequestDto requestDto)
         {
-            var userEmailExists = _genericRepository.GetOne<UserModel>(p => p.Email == requestDto.Email);
+            var userEmailExists = await _userRepository.GetByEmail(requestDto.Email));
             if (userEmailExists != null)
             {
                 return Result<UserRegistrationResponseDto>.FromIError(new ApiError(ErrorCodes.UserEmailExists, nameof(requestDto.Email)));
             }
 
-            var userPhoneExists = _genericRepository.GetOne<UserModel>(p => p.Email == requestDto.Phone);
+            var userPhoneExists = await _userRepository.GetByPhone(requestDto.Phone);
             if (userPhoneExists != null)
             {
                 return Result<UserRegistrationResponseDto>.FromIError(new ApiError(ErrorCodes.UserEmailExists, nameof(requestDto.Phone)));
             }
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-            var res = await _genericRepository.Create(new UserModel
+            await _userRepository.Create(new UserModel
                 {
                     NameFirst = requestDto.NameFirst,
                     NameSecond = requestDto.NameSecond,
@@ -66,7 +69,7 @@ namespace Services.Implementations
             var sessionId = Guid.NewGuid();
             var token = _tokenService.GenerateToken(res.Id, sessionId, _secretKey);
 
-            await _genericRepository.Create(new TokenModel
+            await _tokenRepository.Create(new TokenModel
                 {
                     Id = sessionId,
                     UserAgent = requestDto.UserAgent,
@@ -93,7 +96,7 @@ namespace Services.Implementations
         /// <returns></returns>
         public async Task<Result<UserLoginResponseDto>> Login(UserLoginRequestDto requestDto)
         {
-            var user = _genericRepository.GetOne<UserModel>(p => p.Email == requestDto.Email);
+            var user = await _userRepository.GetByEmail(requestDto.Email));
             if (user == null)
             {
                 return Result<UserLoginResponseDto>.FromIError(new ApiError(ErrorCodes.IncorrectEmailOrPassword));
@@ -107,7 +110,7 @@ namespace Services.Implementations
             var sessionId = Guid.NewGuid();
             var token = _tokenService.GenerateToken(user.Id, sessionId, _secretKey);
 
-            await _genericRepository.Create(new TokenModel
+            await _tokenRepository.Create(new TokenModel
                 {
                     Id = sessionId,
                     UserAgent = requestDto.UserAgent,
@@ -133,28 +136,10 @@ namespace Services.Implementations
         /// <returns></returns>
         public async Task<Result<bool>> Logout(Guid sessionId)
         {
-            var token = await _genericRepository.GetById<TokenModel>(sessionId);
+            var token = await _tokenRepository.GetById(sessionId);
             if (token == null)
                 return new Result<bool>(true);
-            await _genericRepository.Remove(token);
-            return new Result<bool>(true);
-        }
-
-        /// <summary>
-        /// Save push-token for firebase
-        /// </summary>
-        /// <param name="sessionId"></param>
-        /// <param name="pushToken"></param>
-        /// <returns></returns>
-        public async Task<Result<bool>> SavePushToken(Guid sessionId, string pushToken)
-        {
-            var tokenModel = await _genericRepository.GetById<TokenModel>(sessionId);
-            if (tokenModel == null)
-                return new Result<bool>(false);
-
-            tokenModel.PushToken = pushToken;
-            await _genericRepository.Update(tokenModel);
-
+            await _tokenRepository.Delete(token);
             return new Result<bool>(true);
         }
     }

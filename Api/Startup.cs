@@ -139,22 +139,6 @@ namespace Api
                 .WithParameter("options", dbContextOptionsBuilder.Options)
                 .InstancePerLifetimeScope();
 
-            #region Firebase
-
-            // ToDo: Edit config and activate this, if need FB
-            //  var configuration =
-            //      new FirebaseSDKConfiguration
-            //      {
-            //          Credentials =
-            //              new JsonServiceAccountCredentials(
-            //                  Path.Combine(Directory.GetCurrentDirectory(), "firebase.json")
-            //              )
-            //      };
-            //  var firebaseClient = new FirebaseClient(configuration);
-            //  builder.RegisterInstance(firebaseClient).SingleInstance();
-
-            #endregion
-
             // Auto Mapper Configurations
             builder.RegisterAutoMapper(p => p.AddProfile(new DomainToModelProfile()));
 
@@ -175,7 +159,6 @@ namespace Api
             builder.RegisterType<CodeService>().As<ICodeService>();
             builder.RegisterType<UserService>().As<IUserService>();
 
-            builder.RegisterType<SrbacService>().As<ISrbacService>().SingleInstance();
             builder.RegisterType<CryptoHelper>().SingleInstance();
             builder.RegisterType<ScheduleTask>().As<IHostedService>().SingleInstance();
             // ToDo: Edit config and activate this
@@ -190,7 +173,6 @@ namespace Api
                 .SingleInstance();
 
             builder.RegisterType<FileStorageService>().As<IFileStorageService>();
-            builder.RegisterType<AuditService>().As<IAuditService>();
 
             builder
                 .RegisterInstance(Configuration
@@ -282,8 +264,6 @@ namespace Api
             }
 
             app.UseAuthentication();
-
-            app.UseMiddleware<TokenMiddleware>();
 
             app.UseMvc();
 
