@@ -1,10 +1,7 @@
-using Api.Middleware;
 using Api.Scheduler;
-using Domain.Audit;
 using Domain.Authenticate;
 using Domain.Code;
 using Domain.FileStorage;
-using Domain.Srbac;
 using Domain.Token;
 using Domain.User;
 using Infrastructure;
@@ -15,9 +12,6 @@ using Infrastructure.Crypto;
 using Infrastructure.Email;
 using Infrastructure.FileStorage;
 using Infrastructure.Host;
-using Infrastructure.Repositories.Generic;
-using Infrastructure.SMS;
-using Infrastructure.Template;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -35,8 +29,9 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Autofac;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
-using Domain.DomainToModelProfile;
 using Infrastructure.Repositories;
+using Infrastructure.Repositories.Token;
+using Infrastructure.Repositories.User;
 
 namespace Api
 {
@@ -186,14 +181,13 @@ namespace Api
 
             #region DI Repository
 
-            builder.RegisterType<GenericRepository>().As<IGenericRepository>();
+            builder.RegisterType<UserRepository>().As<IUserRepository>();
+            builder.RegisterType<TokenRepository>().As<IUserRepository>();
             builder.RegisterType<SqlRepository>();
 
             #endregion
 
             #region DI Infrastructure
-
-            builder.RegisterType<TemplateContainer>().SingleInstance();
 
             builder
                 .RegisterInstance(Configuration
@@ -204,21 +198,6 @@ namespace Api
                 .SingleInstance();
 
             builder.RegisterType<EmailSender>().As<IEmailSender>();
-
-            var smsConfig = Configuration
-                .GetSection(nameof(SmsConfiguration))
-                .Get<SmsConfiguration>();
-
-            builder
-                .RegisterInstance(smsConfig)
-                .As<SmsConfiguration>()
-                .SingleInstance();
-
-            if (smsConfig.IsStub)
-                builder.RegisterType<StubSMSSender>().As<ISMSSender>();
-
-            // ToDo: Edit config and activate this
-            // builder.RegisterType<IPushSender>().As<IPushSender>();
 
             builder
                 .RegisterInstance(Configuration
@@ -264,13 +243,9 @@ namespace Api
             }
 
             app.UseAuthentication();
-
             app.UseMvc();
-
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
             UpdateDatabase(app);

@@ -1,8 +1,6 @@
-﻿using System;
-using Domain.Base;
+﻿using Domain.Base;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using Domain.Srbac;
 using Toolbelt.ComponentModel.DataAnnotations.Schema.V5;
 
 namespace Domain.User
@@ -61,6 +59,6 @@ namespace Domain.User
         public string Password { get; set; }
 
         [IndexColumn(IsClustered = false, IsUnique = false)]
-        public SrbacRoles Roles { get; set; }
+        public string Roles { get; set; }
     }
 }

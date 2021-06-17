@@ -2,10 +2,8 @@
 using System.Threading.Tasks;
 using System.Transactions;
 using Domain.Authenticate;
-using Domain.Core.Error;
-using Domain.Core.Result.Struct;
+using Domain.Mapper;
 using Domain.Token;
-using Domain.User;
 using Infrastructure.Crypto;
 using Infrastructure.Repositories.Token;
 using Infrastructure.Repositories.User;
@@ -40,10 +38,10 @@ namespace Services.Implementations
         /// </summary>
         /// <param name="requestDto" class="UserRegistrationResponseDto">UserRegistrationResponseDto</param>
         /// <returns></returns>
-        public async Task<Result<UserRegistrationResponseDto>> Register(
+        public async Task<UserRegistrationResponseDto> Register(
             UserRegistrationRequestDto requestDto)
         {
-            var userEmailExists = await _userRepository.GetByEmail(requestDto.Email));
+            var userEmailExists = await _userRepository.GetByEmail(requestDto.Email);
             if (userEmailExists != null)
             {
                 return Result<UserRegistrationResponseDto>.FromIError(new ApiError(ErrorCodes.UserEmailExists, nameof(requestDto.Email)));
@@ -56,37 +54,28 @@ namespace Services.Implementations
             }
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-            await _userRepository.Create(new UserModel
-                {
-                    NameFirst = requestDto.NameFirst,
-                    NameSecond = requestDto.NameSecond,
-                    NamePatronymic = requestDto.NamePatronymic,
-                    Password = _cryptoHelper.GetHash(requestDto.Password),
-                    Phone = requestDto.Phone,
-                    Email = requestDto.Email.ToLower()
-                }
-            );
+            var user = requestDto.MapToDto(_cryptoHelper.GetHash(requestDto.Password));
+            await _userRepository.Create(user);
+            
             var sessionId = Guid.NewGuid();
-            var token = _tokenService.GenerateToken(res.Id, sessionId, _secretKey);
+            var token = _tokenService.GenerateToken(user.Id, user.Roles, sessionId, _secretKey);
 
             await _tokenRepository.Create(new TokenModel
                 {
                     Id = sessionId,
                     UserAgent = requestDto.UserAgent,
                     Token = token,
-                    UserId = res.Id,
+                    UserId = user.Id,
                     AppVersion = requestDto.AppVersion
                 }
             );
             scope.Complete();
 
-            return new Result<UserRegistrationResponseDto>(
-                new UserRegistrationResponseDto
-                {
-                    Id = res.Id,
-                    AuthToken = token
-                }
-            );
+            return new UserRegistrationResponseDto
+            {
+                Id = user.Id,
+                AuthToken = token
+            };
         }
 
         /// <summary>
@@ -94,9 +83,9 @@ namespace Services.Implementations
         /// </summary>
         /// <param name="requestDto" class="UserLoginResponseDto">UserLoginResponseDto</param>
         /// <returns></returns>
-        public async Task<Result<UserLoginResponseDto>> Login(UserLoginRequestDto requestDto)
+        public async Task<UserLoginResponseDto> Login(UserLoginRequestDto requestDto)
         {
-            var user = await _userRepository.GetByEmail(requestDto.Email));
+            var user = await _userRepository.GetByEmail(requestDto.Email);
             if (user == null)
             {
                 return Result<UserLoginResponseDto>.FromIError(new ApiError(ErrorCodes.IncorrectEmailOrPassword));
@@ -108,7 +97,7 @@ namespace Services.Implementations
             }
 
             var sessionId = Guid.NewGuid();
-            var token = _tokenService.GenerateToken(user.Id, sessionId, _secretKey);
+            var token = _tokenService.GenerateToken(user.Id, user.Roles, sessionId, _secretKey);
 
             await _tokenRepository.Create(new TokenModel
                 {
@@ -120,13 +109,11 @@ namespace Services.Implementations
                     CreatorId = user.Id
                 }
             );
-            return new Result<UserLoginResponseDto>(
-                new UserLoginResponseDto
-                {
-                    Id = user.Id,
-                    AuthToken = token
-                }
-            );
+            return new UserLoginResponseDto
+            {
+                Id = user.Id,
+                AuthToken = token
+            };
         }
 
         /// <summary>
@@ -134,13 +121,13 @@ namespace Services.Implementations
         /// </summary>
         /// <param name="sessionId">Session Id</param>
         /// <returns></returns>
-        public async Task<Result<bool>> Logout(Guid sessionId)
+        public async Task<bool> Logout(Guid sessionId)
         {
             var token = await _tokenRepository.GetById(sessionId);
             if (token == null)
-                return new Result<bool>(true);
+                return true;
             await _tokenRepository.Delete(token);
-            return new Result<bool>(true);
+            return true;
         }
     }
 }

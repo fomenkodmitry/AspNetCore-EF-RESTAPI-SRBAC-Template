@@ -10,7 +10,7 @@ namespace Services.Implementations
 {
     public class TokenService : ITokenService
     {
-        public string GenerateToken(Guid? userId, Guid sessionId, string secretKey)
+        public string GenerateToken(Guid userId, string userRole, Guid sessionId, string secretKey)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(secretKey);
@@ -20,6 +20,7 @@ namespace Services.Implementations
                 {
                     new Claim(ClaimTypes.Name, userId.ToString()),
                     new Claim(ClaimTypes.Sid, sessionId.ToString()),
+                    new Claim(ClaimTypes.Role, userRole),
                 }),
                 Expires = DateTime.UtcNow.AddDays(365),
                 SigningCredentials =

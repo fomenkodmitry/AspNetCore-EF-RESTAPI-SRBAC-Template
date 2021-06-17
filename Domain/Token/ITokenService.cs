@@ -5,6 +5,6 @@ namespace Domain.Token
 {
     public interface ITokenService
     {
-        string GenerateToken(Guid? userId, Guid sessionId, string secretKey);
+        string GenerateToken(Guid userId, string userRole, Guid sessionId, string secretKey);
     }
 }

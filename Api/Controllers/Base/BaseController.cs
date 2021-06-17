@@ -3,9 +3,6 @@ using Domain.User;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using Domain.Core.Error;
-using Domain.Core.Result.Struct;
 
 namespace Api.Controllers.Base
 {
