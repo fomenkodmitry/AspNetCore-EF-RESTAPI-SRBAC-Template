@@ -4,6 +4,7 @@ using System.Transactions;
 using Domain.Authenticate;
 using Domain.Mapper;
 using Domain.Token;
+using Exceptions;
 using Infrastructure.Crypto;
 using Infrastructure.Repositories.Token;
 using Infrastructure.Repositories.User;
@@ -43,15 +44,11 @@ namespace Services.Implementations
         {
             var userEmailExists = await _userRepository.GetByEmail(requestDto.Email);
             if (userEmailExists != null)
-            {
-                return Result<UserRegistrationResponseDto>.FromIError(new ApiError(ErrorCodes.UserEmailExists, nameof(requestDto.Email)));
-            }
+                throw new UserNotFoundException();
 
             var userPhoneExists = await _userRepository.GetByPhone(requestDto.Phone);
             if (userPhoneExists != null)
-            {
-                return Result<UserRegistrationResponseDto>.FromIError(new ApiError(ErrorCodes.UserEmailExists, nameof(requestDto.Phone)));
-            }
+                throw new UserNotFoundException();
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             var user = requestDto.MapToDto(_cryptoHelper.GetHash(requestDto.Password));
@@ -87,14 +84,10 @@ namespace Services.Implementations
         {
             var user = await _userRepository.GetByEmail(requestDto.Email);
             if (user == null)
-            {
-                return Result<UserLoginResponseDto>.FromIError(new ApiError(ErrorCodes.IncorrectEmailOrPassword));
-            }
-
+                throw new InvalidPasswordException();
+            
             if (_cryptoHelper.GetHash(requestDto.Password) != user.Password)
-            {
-                return Result<UserLoginResponseDto>.FromIError(new ApiError(ErrorCodes.IncorrectEmailOrPassword));
-            }
+                throw new InvalidPasswordException();
 
             var sessionId = Guid.NewGuid();
             var token = _tokenService.GenerateToken(user.Id, user.Roles, sessionId, _secretKey);

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Domain.Base;
-using Domain.Srbac;
 using Domain.User;
 using Toolbelt.ComponentModel.DataAnnotations.Schema.V5;
 
@@ -21,9 +20,8 @@ namespace Domain.Token
         [Required]
         public Guid? UserId { get; set; }
 
-        [IndexColumn(IsClustered =  false, IsUnique = false)]
         [Required]
-        public SrbacRoles Role { get; set; }
+        public string Roles { get; set; }
 
         public UserModel User { get; set; }
     }

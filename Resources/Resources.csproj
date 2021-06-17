@@ -1,8 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net5.0</TargetFramework>
         <LangVersion>9</LangVersion>
     </PropertyGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Exception.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Exception.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Exception.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Exception.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
 
 </Project>

@@ -1,5 +1,4 @@
-﻿using Domain.Srbac;
-using Domain.User;
+﻿using Domain.User;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Security.Claims;
@@ -33,7 +32,7 @@ namespace Api.Controllers.Base
             }
         }
 
-        protected SrbacRoles CurrentRole => Enum.Parse<SrbacRoles>(User.FindFirstValue(ClaimTypes.Role));
+        protected string CurrentRole => User.FindFirstValue(ClaimTypes.Role);
 
         #endregion
     }

@@ -1,7 +1,5 @@
 using Api.Scheduler;
 using Domain.Authenticate;
-using Domain.Code;
-using Domain.FileStorage;
 using Domain.Token;
 using Domain.User;
 using Infrastructure;
@@ -134,9 +132,6 @@ namespace Api
                 .WithParameter("options", dbContextOptionsBuilder.Options)
                 .InstancePerLifetimeScope();
 
-            // Auto Mapper Configurations
-            builder.RegisterAutoMapper(p => p.AddProfile(new DomainToModelProfile()));
-
             #region DI Service
 
             builder
@@ -151,7 +146,6 @@ namespace Api
 
             builder.RegisterType<AuthenticationService>().As<IAuthenticationService>();
             builder.RegisterType<TokenService>().As<ITokenService>();
-            builder.RegisterType<CodeService>().As<ICodeService>();
             builder.RegisterType<UserService>().As<IUserService>();
 
             builder.RegisterType<CryptoHelper>().SingleInstance();
@@ -166,8 +160,6 @@ namespace Api
                 )
                 .As<FileStorageConfiguration>()
                 .SingleInstance();
-
-            builder.RegisterType<FileStorageService>().As<IFileStorageService>();
 
             builder
                 .RegisterInstance(Configuration
