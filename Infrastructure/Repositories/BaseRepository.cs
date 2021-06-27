@@ -29,15 +29,13 @@ namespace Infrastructure.Repositories
             return await data;
         }
 
-        public async Task<TModel> Create(TModel data, Guid? creatorId = null)
+        public async Task Create(TModel data)
         {
-            data.CreatorId = creatorId;
             data.DateCreated = DateTime.UtcNow;
             data.IsActive ??= true;
             data.DateUpdated = DateTime.UtcNow;
             await Context.Set<TModel>().AddAsync(data);
             await Context.SaveChangesAsync();
-            return data;
         }
 
         public async Task Edit(TModel data)
